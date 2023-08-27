@@ -28,10 +28,21 @@ class SimpleGallery {
         console.info("loaded image", image);
         this.image.src = image.url;
         this.image.alt = image.name;
-        this.image.onload = () => { this.imageOverlay.classList.toggle('hidden'); };
+        this.imageInfoName.innerText = image.name;
+        this.imageInfoTable.innerHTML = '';
+        let body = this.imageInfoTable.createTBody();
+        for (const [attribute, value] of Object.entries(image.meta)) {
+            let bodyRow = body.insertRow();
+            bodyRow.insertCell().innerText = attribute;
+            bodyRow.insertCell().innerText = value.toString();
+        }
+        this.image.onload = () => { this.imageOverlay.classList.remove('hidden'); };
+    }
+    toggleImageInfo() {
+        this.imageInfoPanel.classList.toggle('hidden');
     }
     hideImage() {
-        this.imageOverlay.classList.toggle('hidden');
+        this.imageOverlay.classList.add('hidden');
     }
     initialize() {
         this.gallery = document.querySelector('#gallery-wrapper');
@@ -39,6 +50,11 @@ class SimpleGallery {
         this.imageOverlayCloseBtn = document.querySelector('#close-btn');
         this.imageOverlayCloseBtn.addEventListener('click', () => { this.hideImage(); });
         this.image = document.querySelector('#the-image');
+        this.imageInfoPanel = document.querySelector('#image-info-panel');
+        this.imageInfoName = document.querySelector('#image-info-name');
+        this.imageInfoTable = document.querySelector('#image-info-table');
+        this.imageInfoButton = document.querySelector('#info-btn');
+        this.imageInfoButton.addEventListener('click', () => { this.toggleImageInfo(); });
         this.loadImages(() => { this.displayImages(); });
     }
 }
