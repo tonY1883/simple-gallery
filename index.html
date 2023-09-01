@@ -6,7 +6,8 @@
 	<meta charset="UTF-8">
 	<!-- CSS Style Sheet Here -->
 	<link href='gallery.css' rel='stylesheet' type='text/css'>
-	<script src="gallery.js"/></script>
+	<script src="gallery.js" />
+	</script>
 	<title>
 		Simple Gallery
 	</title>
@@ -17,7 +18,10 @@
 	</div>
 	<div id="image-wrapper" class="hidden">
 		<div id="close-btn" class="btn">X</div>
-		<div id="image-panel"><img id="the-image"></div>
+		<div id="image-panel">
+			<div id="previous-btn" class="btn slider-button">&lt;</div><img id="the-image">
+			<div id="next-btn" class="btn slider-button">&gt;</div>
+		</div>
 		<div id="image-info-panel" class="hidden">
 			<h3 id="image-info-name"></h3>
 			<table id="image-info-table"></table>

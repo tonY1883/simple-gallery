@@ -24,24 +24,30 @@ class SimpleGallery {
         this.gallery.innerHTML = newContent;
     }
     displayImage(index) {
-        const image = this.galleryImages.find(i => i.index === index);
-        console.info("loaded image", image);
-        this.image.src = image.url;
-        this.image.alt = image.name;
-        this.imageInfoName.innerText = image.name;
+        let image = this.galleryImages.find(i => i.index === index);
+        if (!!image) {
+            this.currentImage = image;
+        }
+        else {
+            return;
+        }
+        console.info("loaded image", this.currentImage);
+        this.image.src = this.currentImage.url;
+        this.image.alt = this.currentImage.name;
+        this.imageInfoName.innerText = this.currentImage.name;
         this.imageInfoTable.innerHTML = '';
         const meta = {
-            "Format": image.meta.FileType,
-            "Size": image.meta.FileSize,
-            Directory: image.meta.Directory,
-            Dimension: `${image.meta.ImageSize} (${image.meta.Megapixels} Megapixels)`,
-            Aperture: image.meta.Aperture,
-            "Shutter Speed": image.meta.ShutterSpeed,
-            "Focal Length": image.meta.FocalLength,
-            ISO: image.meta.ISO,
-            "White Balance": image.meta.WhiteBalance,
-            "Date": image.meta.CreateDate,
-            "Camera Model": !!image.meta.Make ? !!image.meta.Model ? image.meta.Make + ' ' + image.meta.Model : image.meta.Make : !!image.meta.Model ? image.meta.Model : null,
+            "Format": this.currentImage.meta.FileType,
+            "Size": this.currentImage.meta.FileSize,
+            Directory: this.currentImage.meta.Directory,
+            Dimension: `${this.currentImage.meta.ImageSize} (${this.currentImage.meta.Megapixels} Megapixels)`,
+            Aperture: this.currentImage.meta.Aperture,
+            "Shutter Speed": this.currentImage.meta.ShutterSpeed,
+            "Focal Length": this.currentImage.meta.FocalLength,
+            ISO: this.currentImage.meta.ISO,
+            "White Balance": this.currentImage.meta.WhiteBalance,
+            "Date": this.currentImage.meta.CreateDate,
+            "Camera Model": !!this.currentImage.meta.Make ? !!this.currentImage.meta.Model ? this.currentImage.meta.Make + ' ' + this.currentImage.meta.Model : this.currentImage.meta.Make : !!this.currentImage.meta.Model ? this.currentImage.meta.Model : null,
         };
         let body = this.imageInfoTable.createTBody();
         for (const [attribute, value] of Object.entries(meta)) {
@@ -70,6 +76,10 @@ class SimpleGallery {
         this.imageInfoTable = document.querySelector('#image-info-table');
         this.imageInfoButton = document.querySelector('#info-btn');
         this.imageInfoButton.addEventListener('click', () => { this.toggleImageInfo(); });
+        this.imageNextButton = document.querySelector('#next-btn');
+        this.imageNextButton.addEventListener('click', () => { this.displayImage(this.currentImage.index + 1); });
+        this.imagePreviousButton = document.querySelector('#previous-btn');
+        this.imagePreviousButton.addEventListener('click', () => { this.displayImage(this.currentImage.index - 1); });
         this.loadImages(() => { this.displayImages(); });
     }
 }
