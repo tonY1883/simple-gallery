@@ -30,11 +30,26 @@ class SimpleGallery {
         this.image.alt = image.name;
         this.imageInfoName.innerText = image.name;
         this.imageInfoTable.innerHTML = '';
+        const meta = {
+            "Format": image.meta.FileType,
+            "Size": image.meta.FileSize,
+            Directory: image.meta.Directory,
+            Dimension: `${image.meta.ImageSize} (${image.meta.Megapixels} Megapixels)`,
+            Aperture: image.meta.Aperture,
+            "Shutter Speed": image.meta.ShutterSpeed,
+            "Focal Length": image.meta.FocalLength,
+            ISO: image.meta.ISO,
+            "White Balance": image.meta.WhiteBalance,
+            "Date": image.meta.CreateDate,
+            "Camera Model": !!image.meta.Make ? !!image.meta.Model ? image.meta.Make + ' ' + image.meta.Model : image.meta.Make : !!image.meta.Model ? image.meta.Model : null,
+        };
         let body = this.imageInfoTable.createTBody();
-        for (const [attribute, value] of Object.entries(image.meta)) {
-            let bodyRow = body.insertRow();
-            bodyRow.insertCell().innerText = attribute;
-            bodyRow.insertCell().innerText = value.toString();
+        for (const [attribute, value] of Object.entries(meta)) {
+            if (!!value) {
+                let bodyRow = body.insertRow();
+                bodyRow.insertCell().innerText = attribute;
+                bodyRow.insertCell().innerText = value.toString();
+            }
         }
         this.image.onload = () => { this.imageOverlay.classList.remove('hidden'); };
     }
