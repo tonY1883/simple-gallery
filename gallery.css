@@ -104,3 +104,7 @@ body {
     text-align: justify;
     table-layout: fixed;
 }
+
+#image-info-table td{
+    padding: 0.2rem 0.5rem;
+}
