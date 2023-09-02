@@ -37,17 +37,17 @@ class SimpleGallery {
         this.imageInfoName.innerText = this.currentImage.name;
         this.imageInfoTable.innerHTML = '';
         const meta = {
-            "Format": this.currentImage.meta.FileType,
-            "Size": this.currentImage.meta.FileSize,
-            Directory: this.currentImage.meta.Directory,
-            Dimension: `${this.currentImage.meta.ImageSize} (${this.currentImage.meta.Megapixels} Megapixels)`,
-            Aperture: this.currentImage.meta.Aperture,
-            "Shutter Speed": this.currentImage.meta.ShutterSpeed,
-            "Focal Length": this.currentImage.meta.FocalLength,
+            "Format": this.currentImage.meta.FileType.trim(),
+            "Size": this.currentImage.meta.FileSize.trim(),
+            Directory: this.currentImage.meta.Directory.trim(),
+            Dimension: `${this.currentImage.meta.ImageSize.trim()} (${this.currentImage.meta.Megapixels} Megapixels)`,
+            Aperture: this.currentImage.meta.Aperture ? `f/${this.currentImage.meta.Aperture}` : null,
+            "Shutter Speed": this.currentImage.meta.ShutterSpeed.trim(),
+            "Focal Length": this.currentImage.meta.FocalLength.trim(),
             ISO: this.currentImage.meta.ISO,
-            "White Balance": this.currentImage.meta.WhiteBalance,
-            "Date": this.currentImage.meta.CreateDate,
-            "Camera Model": !!this.currentImage.meta.Make ? !!this.currentImage.meta.Model ? this.currentImage.meta.Make + ' ' + this.currentImage.meta.Model : this.currentImage.meta.Make : !!this.currentImage.meta.Model ? this.currentImage.meta.Model : null,
+            "White Balance": this.currentImage.meta.WhiteBalance.trim(),
+            "Date": this.currentImage.meta.CreateDate.trim(),
+            "Camera Model": !!this.currentImage.meta.Make ? !!this.currentImage.meta.Model ? this.currentImage.meta.Make.trim() + ' ' + this.currentImage.meta.Model.trim() : this.currentImage.meta.Make.trim() : !!this.currentImage.meta.Model ? this.currentImage.meta.Model.trim() : null,
         };
         let body = this.imageInfoTable.createTBody();
         for (const [attribute, value] of Object.entries(meta)) {
@@ -57,7 +57,7 @@ class SimpleGallery {
                 bodyRow.insertCell().innerText = value.toString();
             }
         }
-        this.image.onload = () => { this.imageOverlay.classList.remove('hidden'); };
+        this.imageOverlay.classList.remove('hidden');
     }
     toggleImageInfo() {
         this.imageInfoPanel.classList.toggle('hidden');
