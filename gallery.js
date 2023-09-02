@@ -1,24 +1,39 @@
 class SimpleGallery {
     constructor() {
-        this.galleryImages = [];
         this.initialize();
     }
     loadImages(callBack) {
         console.info('Loading video list');
         fetch('.simple_gallery_data/index.json', { cache: 'no-store' })
             .then(response => response.json())
-            .then(data => {
+            .then((images) => images.sort((a, b) => a.name.localeCompare(b.name)))
+            .then((data) => {
             this.galleryImages = data;
+            this.albums = new Map();
+            data.forEach(element => {
+                if (!this.albums.has(element.meta.Directory)) {
+                    this.albums.set(element.meta.Directory, new Array());
+                }
+                this.albums.get(element.meta.Directory).push(element);
+            });
         }).then(() => callBack(this))
             .catch(err => {
             console.error(err);
             alert('error: ' + err);
         });
     }
-    displayImages() {
+    displayAlbums() {
+        this.albumListDisplay.innerHTML = '';
+        let newContent = '';
+        this.albums.forEach((imgs, dir) => {
+            newContent += `<li onclick="galleryApp.displayImages('${dir}')">${dir}<li>`;
+        });
+        this.albumListDisplay.innerHTML = newContent;
+    }
+    displayImages(album) {
         this.gallery.innerHTML = '';
         let newContent = '';
-        this.galleryImages.forEach((img) => {
+        this.albums.get(album).forEach((img) => {
             newContent += `<div class="gallery-image-panel"><img src="${img.thumbnailUrl}" loading="lazy" alt="${img.name}" onclick="galleryApp.displayImage(${img.index})"></div>`;
         });
         this.gallery.innerHTML = newContent;
@@ -66,6 +81,7 @@ class SimpleGallery {
         this.imageOverlay.classList.add('hidden');
     }
     initialize() {
+        this.albumListDisplay = document.querySelector('#album-list');
         this.gallery = document.querySelector('#gallery-wrapper');
         this.imageOverlay = document.querySelector('#image-wrapper');
         this.imageOverlayCloseBtn = document.querySelector('#close-btn');
@@ -80,7 +96,7 @@ class SimpleGallery {
         this.imageNextButton.addEventListener('click', () => { this.displayImage(this.currentImage.index + 1); });
         this.imagePreviousButton = document.querySelector('#previous-btn');
         this.imagePreviousButton.addEventListener('click', () => { this.displayImage(this.currentImage.index - 1); });
-        this.loadImages(() => { this.displayImages(); });
+        this.loadImages(() => { this.displayAlbums(); });
     }
 }
 let galleryApp;

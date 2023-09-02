@@ -9,12 +9,54 @@ body {
     color: #CBCBCB;
 }
 
+#album-wrapper {
+    padding: 1rem 0.25rem;
+    position: fixed;
+    background-color: #353535;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2.5rem;
+    max-width: 40%;
+    box-shadow: 0 10px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+}
+
+#album-icon {
+    font-size: 1.5rem;
+}
+
+#album-list {
+    text-align: left;
+    display: none;
+    list-style-type: none;
+}
+
+#album-list li {
+    padding: 0.25rem;
+    width: 100%;
+}
+
+#album-wrapper:hover {
+    padding: 1rem;
+    width: 20%;
+
+}
+
+#album-wrapper:hover #album-icon {
+    display: none;
+}
+
+#album-wrapper:hover #album-list {
+    display: block;
+}
+
 #gallery-wrapper {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-evenly;
     align-content: space-around;
+    padding-left: 2.5rem;
 }
 
 .gallery-image-panel {
