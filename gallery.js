@@ -3,7 +3,6 @@ class SimpleGallery {
         this.initialize();
     }
     loadImages(callBack) {
-        console.info('Loading video list');
         fetch('.simple_gallery_data/index.json', { cache: 'no-store' })
             .then(response => response.json())
             .then((images) => images.sort((a, b) => a.name.localeCompare(b.name)))
@@ -39,6 +38,7 @@ class SimpleGallery {
         this.gallery.innerHTML = newContent;
     }
     displayImage(index) {
+        var _a, _b, _c, _d;
         let image = this.galleryImages.find(i => i.index === index);
         if (!!image) {
             this.currentImage = image;
@@ -57,11 +57,11 @@ class SimpleGallery {
             Directory: this.currentImage.meta.Directory.trim(),
             Dimension: `${this.currentImage.meta.ImageSize.trim()} (${this.currentImage.meta.Megapixels} Megapixels)`,
             Aperture: this.currentImage.meta.Aperture ? `f/${this.currentImage.meta.Aperture}` : null,
-            "Shutter Speed": this.currentImage.meta.ShutterSpeed.trim(),
-            "Focal Length": this.currentImage.meta.FocalLength.trim(),
+            "Shutter Speed": (_a = this.currentImage.meta.ShutterSpeed) === null || _a === void 0 ? void 0 : _a.trim(),
+            "Focal Length": (_b = this.currentImage.meta.FocalLength) === null || _b === void 0 ? void 0 : _b.trim(),
             ISO: this.currentImage.meta.ISO,
-            "White Balance": this.currentImage.meta.WhiteBalance.trim(),
-            "Date": this.currentImage.meta.CreateDate.trim(),
+            "White Balance": (_c = this.currentImage.meta.WhiteBalance) === null || _c === void 0 ? void 0 : _c.trim(),
+            "Date": (_d = this.currentImage.meta.CreateDate) === null || _d === void 0 ? void 0 : _d.trim(),
             "Camera Model": !!this.currentImage.meta.Make ? !!this.currentImage.meta.Model ? this.currentImage.meta.Make.trim() + ' ' + this.currentImage.meta.Model.trim() : this.currentImage.meta.Make.trim() : !!this.currentImage.meta.Model ? this.currentImage.meta.Model.trim() : null,
         };
         let body = this.imageInfoTable.createTBody();
