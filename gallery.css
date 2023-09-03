@@ -72,8 +72,11 @@ body {
 }
 
 .btn {
+    font-family: monospace;
     user-select: none;
     font-size: 2rem;
+    padding: 0.25rem 0.5rem;
+    background-color: rgba(0, 0, 0, 0.4);
 }
 
 .gallery-image-panel img {
