@@ -172,3 +172,29 @@ body {
 #next-btn {
     right: 0;
 }
+
+@media only screen and (max-width: 560px) {
+    #album-wrapper {
+        max-width: 80%;
+    }
+
+    #album-wrapper:hover {
+        width: 80%;
+    }
+
+    #image-info-panel {
+        max-width: 100%;
+        max-height: 80%;
+        flex-grow: 1;
+    }
+
+    #image-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #image-panel {
+        flex-grow: 1;
+        flex-shrink: 2;
+    }
+}
