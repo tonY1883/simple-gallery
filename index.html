@@ -6,8 +6,10 @@
 	<meta charset="UTF-8">
 	<!-- CSS Style Sheet Here -->
 	<link href='gallery.css' rel='stylesheet' type='text/css'>
-	<script src="gallery.js" />
-	</script>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+		integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+	<script src="gallery.js"></script>
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 	<title>
 		Simple Gallery
 	</title>
@@ -29,6 +31,7 @@
 		<div id="image-info-panel" class="hidden">
 			<h3 id="image-info-name"></h3>
 			<div id="image-info-table"></div>
+			<div id="location-map"></div>
 		</div>
 		<div id="info-btn" class="btn">i</div>
 	</div>

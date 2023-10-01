@@ -186,6 +186,11 @@ body {
     right: 0;
 }
 
+#location-map{
+    width: 100%;
+    height: 20vw;
+}
+
 @media only screen and (max-width: 560px) {
     #album-wrapper {
         max-width: 80%;
@@ -199,6 +204,11 @@ body {
         max-width: 100%;
         max-height: 80%;
         flex-grow: 1;
+    }
+
+    #location-map{
+        width: 100%;
+        height: 80vw;
     }
 
     #image-wrapper {

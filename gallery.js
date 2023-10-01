@@ -24,10 +24,10 @@ class SimpleGallery {
             this.galleryImages = data;
             this.albums = new Map();
             data.forEach(element => {
-                if (!this.albums.has(element.meta.Directory)) {
-                    this.albums.set(element.meta.Directory, new Array());
+                if (!this.albums.has(element.textMeta.Directory)) {
+                    this.albums.set(element.textMeta.Directory, new Array());
                 }
-                this.albums.get(element.meta.Directory).push(element);
+                this.albums.get(element.textMeta.Directory).push(element);
             });
         }).then(() => callBack(this))
             .catch(err => {
@@ -67,27 +67,43 @@ class SimpleGallery {
         this.imageInfoTable.innerHTML = '';
         const meta = {
             "File Meta": {
-                Format: this.currentImage.meta.FileType.trim(),
-                Size: this.currentImage.meta.FileSize.trim(),
-                Directory: this.currentImage.meta.Directory.trim()
+                Format: this.currentImage.textMeta.FileType.trim(),
+                Size: this.currentImage.textMeta.FileSize.trim(),
+                Directory: this.currentImage.textMeta.Directory.trim()
             },
             Photography: {
-                Dimension: `${this.currentImage.meta.ImageSize.trim()} (${this.currentImage.meta.Megapixels} Megapixels)`,
-                Aperture: this.currentImage.meta.Aperture ? `f/${this.currentImage.meta.Aperture}` : null,
-                "Shutter Speed": (_a = this.currentImage.meta.ShutterSpeed) === null || _a === void 0 ? void 0 : _a.trim(),
-                "Focal Length": (_b = this.currentImage.meta.FocalLength) === null || _b === void 0 ? void 0 : _b.trim(),
-                ISO: this.currentImage.meta.ISO,
-                "White Balance": (_c = this.currentImage.meta.WhiteBalance) === null || _c === void 0 ? void 0 : _c.trim(), "Camera Model": !!this.currentImage.meta.Make ? !!this.currentImage.meta.Model ? this.currentImage.meta.Make.trim() + ' ' + this.currentImage.meta.Model.trim() : this.currentImage.meta.Make.trim() : !!this.currentImage.meta.Model ? this.currentImage.meta.Model.trim() : null,
+                Dimension: `${this.currentImage.textMeta.ImageSize.trim()} (${this.currentImage.textMeta.Megapixels} Megapixels)`,
+                Aperture: this.currentImage.textMeta.Aperture ? `f/${this.currentImage.textMeta.Aperture}` : null,
+                "Shutter Speed": (_a = this.currentImage.textMeta.ShutterSpeed) === null || _a === void 0 ? void 0 : _a.trim(),
+                "Focal Length": (_b = this.currentImage.textMeta.FocalLength) === null || _b === void 0 ? void 0 : _b.trim(),
+                ISO: this.currentImage.textMeta.ISO,
+                "White Balance": (_c = this.currentImage.textMeta.WhiteBalance) === null || _c === void 0 ? void 0 : _c.trim(), "Camera Model": !!this.currentImage.textMeta.Make ? !!this.currentImage.textMeta.Model ? this.currentImage.textMeta.Make.trim() + ' ' + this.currentImage.textMeta.Model.trim() : this.currentImage.textMeta.Make.trim() : !!this.currentImage.textMeta.Model ? this.currentImage.textMeta.Model.trim() : null,
             },
             History: {
-                "Date": (_d = this.currentImage.meta.CreateDate) === null || _d === void 0 ? void 0 : _d.trim(),
-                "Location": (_e = this.currentImage.meta.GPSPosition) === null || _e === void 0 ? void 0 : _e.trim()
+                "Date": (_d = this.currentImage.textMeta.CreateDate) === null || _d === void 0 ? void 0 : _d.trim(),
+                "Location": (_e = this.currentImage.textMeta.GPSPosition) === null || _e === void 0 ? void 0 : _e.trim()
             },
         };
         for (const [sectionHeading, sectionData] of Object.entries(meta)) {
             this.imageInfoTable.appendChild(SimpleGallery.tableFromObject(sectionData, sectionHeading));
         }
+        if (!!this.currentImage.gpsMeta.GPSLatitude && !!this.leafletLib) {
+            !!this.leafletMap && this.leafletMap.remove();
+            this.leafletMap = this.leafletLib.map('location-map').setView([this.currentImage.gpsMeta.GPSLatitude, this.currentImage.gpsMeta.GPSLongitude], 14);
+            this.leafletLib.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(this.leafletMap);
+            this.leafletLib.marker([this.currentImage.gpsMeta.GPSLatitude, this.currentImage.gpsMeta.GPSLongitude]).addTo(this.leafletMap);
+            this.imageLocationMap.classList.remove('hidden');
+        }
+        else {
+            this.imageLocationMap.classList.add('hidden');
+        }
         this.imageOverlay.classList.remove('hidden');
+        if (!!this.leafletMap) {
+            this.leafletMap.invalidateSize();
+        }
     }
     toggleImageInfo() {
         this.imageInfoPanel.classList.toggle('hidden');
@@ -96,6 +112,7 @@ class SimpleGallery {
         this.imageOverlay.classList.add('hidden');
     }
     initialize() {
+        this.leafletLib = window["L"];
         this.albumListDisplay = document.querySelector('#album-list');
         this.gallery = document.querySelector('#gallery-wrapper');
         this.imageOverlay = document.querySelector('#image-wrapper');
@@ -111,6 +128,7 @@ class SimpleGallery {
         this.imageNextButton.addEventListener('click', () => { this.displayImage(this.currentImage.index + 1); });
         this.imagePreviousButton = document.querySelector('#previous-btn');
         this.imagePreviousButton.addEventListener('click', () => { this.displayImage(this.currentImage.index - 1); });
+        this.imageLocationMap = document.querySelector('#location-map');
         this.loadImages(() => { this.displayAlbums(); });
     }
 }
