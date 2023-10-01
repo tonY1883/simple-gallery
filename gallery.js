@@ -2,6 +2,20 @@ class SimpleGallery {
     constructor() {
         this.initialize();
     }
+    static tableFromObject(data, title) {
+        console.debug(data);
+        let dataTable = document.createElement("table");
+        let body = dataTable.createTBody();
+        dataTable.createCaption().innerText = title;
+        for (const [attribute, value] of Object.entries(data)) {
+            if (!!value) {
+                let bodyRow = body.insertRow();
+                bodyRow.insertCell().innerText = attribute;
+                bodyRow.insertCell().innerText = value.toString();
+            }
+        }
+        return dataTable;
+    }
     loadImages(callBack) {
         fetch('.simple_gallery_data/index.json', { cache: 'no-store' })
             .then(response => response.json())
@@ -38,7 +52,7 @@ class SimpleGallery {
         this.gallery.innerHTML = newContent;
     }
     displayImage(index) {
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e;
         let image = this.galleryImages.find(i => i.index === index);
         if (!!image) {
             this.currentImage = image;
@@ -52,25 +66,26 @@ class SimpleGallery {
         this.imageInfoName.innerText = this.currentImage.name;
         this.imageInfoTable.innerHTML = '';
         const meta = {
-            "Format": this.currentImage.meta.FileType.trim(),
-            "Size": this.currentImage.meta.FileSize.trim(),
-            Directory: this.currentImage.meta.Directory.trim(),
-            Dimension: `${this.currentImage.meta.ImageSize.trim()} (${this.currentImage.meta.Megapixels} Megapixels)`,
-            Aperture: this.currentImage.meta.Aperture ? `f/${this.currentImage.meta.Aperture}` : null,
-            "Shutter Speed": (_a = this.currentImage.meta.ShutterSpeed) === null || _a === void 0 ? void 0 : _a.trim(),
-            "Focal Length": (_b = this.currentImage.meta.FocalLength) === null || _b === void 0 ? void 0 : _b.trim(),
-            ISO: this.currentImage.meta.ISO,
-            "White Balance": (_c = this.currentImage.meta.WhiteBalance) === null || _c === void 0 ? void 0 : _c.trim(),
-            "Date": (_d = this.currentImage.meta.CreateDate) === null || _d === void 0 ? void 0 : _d.trim(),
-            "Camera Model": !!this.currentImage.meta.Make ? !!this.currentImage.meta.Model ? this.currentImage.meta.Make.trim() + ' ' + this.currentImage.meta.Model.trim() : this.currentImage.meta.Make.trim() : !!this.currentImage.meta.Model ? this.currentImage.meta.Model.trim() : null,
+            "File Meta": {
+                Format: this.currentImage.meta.FileType.trim(),
+                Size: this.currentImage.meta.FileSize.trim(),
+                Directory: this.currentImage.meta.Directory.trim()
+            },
+            Photography: {
+                Dimension: `${this.currentImage.meta.ImageSize.trim()} (${this.currentImage.meta.Megapixels} Megapixels)`,
+                Aperture: this.currentImage.meta.Aperture ? `f/${this.currentImage.meta.Aperture}` : null,
+                "Shutter Speed": (_a = this.currentImage.meta.ShutterSpeed) === null || _a === void 0 ? void 0 : _a.trim(),
+                "Focal Length": (_b = this.currentImage.meta.FocalLength) === null || _b === void 0 ? void 0 : _b.trim(),
+                ISO: this.currentImage.meta.ISO,
+                "White Balance": (_c = this.currentImage.meta.WhiteBalance) === null || _c === void 0 ? void 0 : _c.trim(), "Camera Model": !!this.currentImage.meta.Make ? !!this.currentImage.meta.Model ? this.currentImage.meta.Make.trim() + ' ' + this.currentImage.meta.Model.trim() : this.currentImage.meta.Make.trim() : !!this.currentImage.meta.Model ? this.currentImage.meta.Model.trim() : null,
+            },
+            History: {
+                "Date": (_d = this.currentImage.meta.CreateDate) === null || _d === void 0 ? void 0 : _d.trim(),
+                "Location": (_e = this.currentImage.meta.GPSPosition) === null || _e === void 0 ? void 0 : _e.trim()
+            },
         };
-        let body = this.imageInfoTable.createTBody();
-        for (const [attribute, value] of Object.entries(meta)) {
-            if (!!value) {
-                let bodyRow = body.insertRow();
-                bodyRow.insertCell().innerText = attribute;
-                bodyRow.insertCell().innerText = value.toString();
-            }
+        for (const [sectionHeading, sectionData] of Object.entries(meta)) {
+            this.imageInfoTable.appendChild(SimpleGallery.tableFromObject(sectionData, sectionHeading));
         }
         this.imageOverlay.classList.remove('hidden');
     }
