@@ -147,9 +147,19 @@ body {
     overflow-y: auto;
 }
 
-#image-info-table {
-    text-align: justify;
+#image-info-table table {
+    width: 100%;
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+    text-align: left;
     table-layout: fixed;
+}
+
+#image-info-table caption {
+    font-weight: 800;
+    padding: 0.25rem;
+    padding-left: 0;
+    text-align: left;
 }
 
 #image-info-table td {
