@@ -210,4 +210,14 @@ body {
         flex-grow: 1;
         flex-shrink: 2;
     }
+
+    #gallery-wrapper {
+        padding-left: 3rem;
+    }
+
+    .gallery-image-panel {
+        height: 12rem;
+        width: 12rem;
+        margin: 0.5rem;
+    }
 }
