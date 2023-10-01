@@ -33,7 +33,7 @@ for idx, file in enumerate(files, start = 1):
 	try:
 		pbar.update(1)
 		if file.is_file():
-			info = subprocess.run(['exiftool', '-j', str(file)], stdout=subprocess.PIPE, check=True).stdout.decode('utf-8')
+			info = subprocess.run(['exiftool','-FileType', '-FileSize', '-Directory', '-Megapixels', '-ImageSize', '-Aperture', '-ShutterSpeed', '-FocalLength', '-ISO', '-WhiteBalance', '-CreateDate', '-Make', '-Model', '-GPSPosition', '-j', str(file)], stdout=subprocess.PIPE, check=True).stdout.decode('utf-8')
 			info = json.loads(info)
 			data = {}
 			data["name"] = file.name
@@ -41,7 +41,10 @@ for idx, file in enumerate(files, start = 1):
 			data["url"] = urllib.parse.quote(str(file))
 			thumbnail_path = data_dir_path.joinpath('thumbnails').joinpath(str(idx)).with_suffix('.jpg')
 			data["thumbnailUrl"] = urllib.parse.quote(str(thumbnail_path))
-			data["meta"] = info[0]
+			data["textMeta"] = info[0]
+			info = subprocess.run(['exiftool', '-n', '-GPSLatitude', '-GPSLongitude', '-j', str(file)], stdout=subprocess.PIPE, check=True).stdout.decode('utf-8')
+			info = json.loads(info)
+			data["gpsMeta"] = info[0]
 			index.append(data)
 			#create_thumbnail(file, thumbnail_path)
 			p.apply_async(create_thumbnail,[file, thumbnail_path])
