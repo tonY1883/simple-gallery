@@ -3,7 +3,6 @@ class SimpleGallery {
         this.initialize();
     }
     static tableFromObject(data, title) {
-        console.debug(data);
         let dataTable = document.createElement("table");
         let body = dataTable.createTBody();
         dataTable.createCaption().innerText = title;
@@ -52,12 +51,22 @@ class SimpleGallery {
         this.gallery.innerHTML = newContent;
     }
     displayImage(index) {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d, _e, _f;
+        if (index === ((_a = this.currentImage) === null || _a === void 0 ? void 0 : _a.index)) {
+            //simply unhide the detail view
+            console.debug("Same image as current image, nothing to do");
+            this.imageOverlay.classList.remove('hidden');
+            if (!!this.leafletMap) {
+                this.leafletMap.invalidateSize();
+            }
+            return;
+        }
         let image = this.galleryImages.find(i => i.index === index);
         if (!!image) {
             this.currentImage = image;
         }
         else {
+            console.error(`Cannot find image with index ${index}`);
             return;
         }
         console.info("loaded image", this.currentImage);
@@ -74,14 +83,14 @@ class SimpleGallery {
             Photography: {
                 Dimension: `${this.currentImage.textMeta.ImageSize.trim()} (${this.currentImage.textMeta.Megapixels} Megapixels)`,
                 Aperture: this.currentImage.textMeta.Aperture ? `f/${this.currentImage.textMeta.Aperture}` : null,
-                "Shutter Speed": (_a = this.currentImage.textMeta.ShutterSpeed) === null || _a === void 0 ? void 0 : _a.trim(),
-                "Focal Length": (_b = this.currentImage.textMeta.FocalLength) === null || _b === void 0 ? void 0 : _b.trim(),
+                "Shutter Speed": (_b = this.currentImage.textMeta.ShutterSpeed) === null || _b === void 0 ? void 0 : _b.trim(),
+                "Focal Length": (_c = this.currentImage.textMeta.FocalLength) === null || _c === void 0 ? void 0 : _c.trim(),
                 ISO: this.currentImage.textMeta.ISO,
-                "White Balance": (_c = this.currentImage.textMeta.WhiteBalance) === null || _c === void 0 ? void 0 : _c.trim(), "Camera Model": !!this.currentImage.textMeta.Make ? !!this.currentImage.textMeta.Model ? this.currentImage.textMeta.Make.trim() + ' ' + this.currentImage.textMeta.Model.trim() : this.currentImage.textMeta.Make.trim() : !!this.currentImage.textMeta.Model ? this.currentImage.textMeta.Model.trim() : null,
+                "White Balance": (_d = this.currentImage.textMeta.WhiteBalance) === null || _d === void 0 ? void 0 : _d.trim(), "Camera Model": !!this.currentImage.textMeta.Make ? !!this.currentImage.textMeta.Model ? this.currentImage.textMeta.Make.trim() + ' ' + this.currentImage.textMeta.Model.trim() : this.currentImage.textMeta.Make.trim() : !!this.currentImage.textMeta.Model ? this.currentImage.textMeta.Model.trim() : null,
             },
             History: {
-                "Date": (_d = this.currentImage.textMeta.CreateDate) === null || _d === void 0 ? void 0 : _d.trim(),
-                "Location": (_e = this.currentImage.textMeta.GPSPosition) === null || _e === void 0 ? void 0 : _e.trim()
+                "Date": (_e = this.currentImage.textMeta.CreateDate) === null || _e === void 0 ? void 0 : _e.trim(),
+                "Location": (_f = this.currentImage.textMeta.GPSPosition) === null || _f === void 0 ? void 0 : _f.trim()
             },
         };
         for (const [sectionHeading, sectionData] of Object.entries(meta)) {
