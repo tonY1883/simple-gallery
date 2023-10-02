@@ -9,17 +9,30 @@ import urllib.parse
 import subprocess
 import multiprocessing
 
-dir_name = sys.argv[1]
-data_dir_path = Path('.simple_gallery_data')
-data_dir_path.mkdir(parents=True, exist_ok=True)
-data_dir_path.joinpath('thumbnails').mkdir(exist_ok=True, parents=True)
-index = []
-
+def remove_dir(pth: Path):
+	for child in pth.iterdir():
+		if child.is_file():
+			child.unlink()
+		else:
+			remove_dir(child)
+	pth.rmdir()
 
 def create_thumbnail(path_to_original, path_to_thumbnail):
 	#print(str(path_to_original) + " -> " + str(path_to_thumbnail))
 	#print(" ".join(['ffmpeg', '-nostdin', '-i', str(path_to_original), "-vf", "scale=trunc(oh*a/2)*2:min(500\,iw)", '-y', str(path_to_thumbnail)]))
 	subprocess.run(['ffmpeg', '-nostdin', '-i', str(path_to_original), "-vf", "scale=trunc(oh*a/2)*2:min(500\,iw)", '-y', str(path_to_thumbnail)], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT).stdout.decode('utf-8')
+
+
+dir_name = sys.argv[1]
+data_dir_path = Path('.simple_gallery_data')
+#cleanup old data
+#TODO update if file already exists
+if data_dir_path.exists():
+	print("Cleaning up old data before indexing...")
+	remove_dir(data_dir_path)
+data_dir_path.mkdir(parents=True, exist_ok=True)
+data_dir_path.joinpath('thumbnails').mkdir(exist_ok=True, parents=True)
+index = []
 
 #Only select formats currently supported by browsers
 accept_file_formats = [
