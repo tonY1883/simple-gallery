@@ -121,8 +121,12 @@ body {
     object-fit: contain;
 }
 
-.hidden {
+.gone {
     display: none !important;
+}
+
+.hidden {
+    visibility: hidden !important;
 }
 
 #close-btn {

@@ -61,6 +61,7 @@ class SimpleGallery {
             }
             return;
         }
+        this.image.classList.add('hidden');
         let image = this.galleryImages.find(i => i.index === index);
         if (!!image) {
             this.currentImage = image;
@@ -109,16 +110,16 @@ class SimpleGallery {
         else {
             this.imageLocationMap.classList.add('hidden');
         }
-        this.imageOverlay.classList.remove('hidden');
+        this.imageOverlay.classList.remove('gone');
         if (!!this.leafletMap) {
             this.leafletMap.invalidateSize();
         }
     }
     toggleImageInfo() {
-        this.imageInfoPanel.classList.toggle('hidden');
+        this.imageInfoPanel.classList.toggle('gone');
     }
     hideImage() {
-        this.imageOverlay.classList.add('hidden');
+        this.imageOverlay.classList.add('gone');
     }
     initialize() {
         this.leafletLib = window["L"];
@@ -128,6 +129,7 @@ class SimpleGallery {
         this.imageOverlayCloseBtn = document.querySelector('#close-btn');
         this.imageOverlayCloseBtn.addEventListener('click', () => { this.hideImage(); });
         this.image = document.querySelector('#the-image');
+        this.image.onload = () => { this.image.classList.remove('hidden'); };
         this.imageInfoPanel = document.querySelector('#image-info-panel');
         this.imageInfoName = document.querySelector('#image-info-name');
         this.imageInfoTable = document.querySelector('#image-info-table');
