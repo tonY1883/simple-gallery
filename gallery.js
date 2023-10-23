@@ -55,7 +55,7 @@ class SimpleGallery {
         if (index === ((_a = this.currentImage) === null || _a === void 0 ? void 0 : _a.index)) {
             //simply unhide the detail view
             console.debug("Same image as current image, nothing to do");
-            this.imageOverlay.classList.remove('hidden');
+            this.imageOverlay.classList.remove('gone');
             if (!!this.leafletMap) {
                 this.leafletMap.invalidateSize();
             }
