@@ -1,7 +1,4 @@
 class SimpleGallery {
-    constructor() {
-        this.initialize();
-    }
     static tableFromObject(data, title) {
         let dataTable = document.createElement("table");
         let body = dataTable.createTBody();
@@ -14,6 +11,9 @@ class SimpleGallery {
             }
         }
         return dataTable;
+    }
+    constructor() {
+        this.initialize();
     }
     loadImages(callBack) {
         fetch('.simple_gallery_data/index.json', { cache: 'no-store' })
@@ -56,9 +56,6 @@ class SimpleGallery {
             //simply unhide the detail view
             console.debug("Same image as current image, nothing to do");
             this.imageOverlay.classList.remove('gone');
-            if (!!this.leafletMap) {
-                this.leafletMap.invalidateSize();
-            }
             return;
         }
         this.image.classList.add('hidden');
@@ -111,12 +108,12 @@ class SimpleGallery {
             this.imageLocationMap.classList.add('hidden');
         }
         this.imageOverlay.classList.remove('gone');
-        if (!!this.leafletMap) {
-            this.leafletMap.invalidateSize();
-        }
     }
     toggleImageInfo() {
         this.imageInfoPanel.classList.toggle('gone');
+        if (!!this.leafletMap) {
+            this.leafletMap.invalidateSize();
+        }
     }
     hideImage() {
         this.imageOverlay.classList.add('gone');
