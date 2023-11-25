@@ -51,8 +51,7 @@ class SimpleGallery {
         this.gallery.innerHTML = newContent;
     }
     displayImage(index) {
-        var _a, _b, _c, _d, _e, _f;
-        if (index === ((_a = this.currentImage) === null || _a === void 0 ? void 0 : _a.index)) {
+        if (index === this.currentImage?.index) {
             //simply unhide the detail view
             console.debug("Same image as current image, nothing to do");
             this.imageOverlay.classList.remove('gone');
@@ -81,14 +80,14 @@ class SimpleGallery {
             Photography: {
                 Dimension: `${this.currentImage.textMeta.ImageSize.trim()} (${this.currentImage.textMeta.Megapixels} Megapixels)`,
                 Aperture: this.currentImage.textMeta.Aperture ? `f/${this.currentImage.textMeta.Aperture}` : null,
-                "Shutter Speed": (_b = this.currentImage.textMeta.ShutterSpeed) === null || _b === void 0 ? void 0 : _b.trim(),
-                "Focal Length": (_c = this.currentImage.textMeta.FocalLength) === null || _c === void 0 ? void 0 : _c.trim(),
+                "Shutter Speed": this.currentImage.textMeta.ShutterSpeed?.trim(),
+                "Focal Length": this.currentImage.textMeta.FocalLength?.trim(),
                 ISO: this.currentImage.textMeta.ISO,
-                "White Balance": (_d = this.currentImage.textMeta.WhiteBalance) === null || _d === void 0 ? void 0 : _d.trim(), "Camera Model": !!this.currentImage.textMeta.Make ? !!this.currentImage.textMeta.Model ? this.currentImage.textMeta.Make.trim() + ' ' + this.currentImage.textMeta.Model.trim() : this.currentImage.textMeta.Make.trim() : !!this.currentImage.textMeta.Model ? this.currentImage.textMeta.Model.trim() : null,
+                "White Balance": this.currentImage.textMeta.WhiteBalance?.trim(), "Camera Model": !!this.currentImage.textMeta.Make ? !!this.currentImage.textMeta.Model ? this.currentImage.textMeta.Make.trim() + ' ' + this.currentImage.textMeta.Model.trim() : this.currentImage.textMeta.Make.trim() : !!this.currentImage.textMeta.Model ? this.currentImage.textMeta.Model.trim() : null,
             },
             History: {
-                "Date": (_e = this.currentImage.textMeta.CreateDate) === null || _e === void 0 ? void 0 : _e.trim(),
-                "Location": (_f = this.currentImage.textMeta.GPSPosition) === null || _f === void 0 ? void 0 : _f.trim()
+                "Date": this.currentImage.textMeta.CreateDate?.trim(),
+                "Location": this.currentImage.textMeta.GPSPosition?.trim()
             },
         };
         for (const [sectionHeading, sectionData] of Object.entries(meta)) {
@@ -96,7 +95,7 @@ class SimpleGallery {
         }
         if (!!this.currentImage.gpsMeta.GPSLatitude && !!this.leafletLib) {
             !!this.leafletMap && this.leafletMap.remove();
-            this.leafletMap = this.leafletLib.map('location-map').setView([this.currentImage.gpsMeta.GPSLatitude, this.currentImage.gpsMeta.GPSLongitude], 14);
+            this.leafletMap = this.leafletLib.map(this.imageLocationMap).setView([this.currentImage.gpsMeta.GPSLatitude, this.currentImage.gpsMeta.GPSLongitude], 14);
             this.leafletLib.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
