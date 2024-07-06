@@ -46,27 +46,27 @@ class SimpleGallery {
         this.gallery.innerHTML = '';
         let newContent = '';
         this.albums.get(album).forEach((img) => {
-            newContent += `<div class="gallery-image-panel"><img src="${img.thumbnailUrl}" loading="lazy" alt="${img.name}" onclick="galleryApp.displayImage(${img.index})"></div>`;
+            newContent += `<div class="gallery-image-panel"><img src="${img.thumbnailUrl}" loading="lazy" alt="${img.name}" onclick="galleryApp.displayImage(${img.id})"></div>`;
         });
         this.gallery.innerHTML = newContent;
     }
-    displayImage(index) {
-        if (index === this.currentImage?.index) {
+    displayImage(id) {
+        if (id === this.currentImage?.id) {
             //simply unhide the detail view
             console.debug("Same image as current image, nothing to do");
             this.imageOverlay.classList.remove('gone');
             return;
         }
-        this.image.classList.add('hidden');
-        let image = this.galleryImages.find(i => i.index === index);
+        let image = this.galleryImages.find(i => i.id === id);
         if (!!image) {
             this.currentImage = image;
         }
         else {
-            console.error(`Cannot find image with index ${index}`);
+            console.error(`Cannot find image with id ${id}`);
             return;
         }
         console.info("loaded image", this.currentImage);
+        this.image.classList.add('hidden');
         this.image.src = this.currentImage.url;
         this.image.alt = this.currentImage.name;
         this.imageInfoName.innerText = this.currentImage.name;
@@ -132,9 +132,15 @@ class SimpleGallery {
         this.imageInfoButton = document.querySelector('#info-btn');
         this.imageInfoButton.addEventListener('click', () => { this.toggleImageInfo(); });
         this.imageNextButton = document.querySelector('#next-btn');
-        this.imageNextButton.addEventListener('click', () => { this.displayImage(this.currentImage.index + 1); });
+        this.imageNextButton.addEventListener('click', () => {
+            let index = this.galleryImages.findIndex((img) => img.id === this.currentImage.id);
+            this.displayImage(this.galleryImages[index + 1]?.id);
+        });
         this.imagePreviousButton = document.querySelector('#previous-btn');
-        this.imagePreviousButton.addEventListener('click', () => { this.displayImage(this.currentImage.index - 1); });
+        this.imagePreviousButton.addEventListener('click', () => {
+            let index = this.galleryImages.findIndex((img) => img.id === this.currentImage.id);
+            this.displayImage(this.galleryImages[index - 1]?.id);
+        });
         this.imageLocationMap = document.querySelector('#location-map');
         this.loadImages(() => { this.displayAlbums(); });
     }
