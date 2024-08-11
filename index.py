@@ -43,7 +43,7 @@ else:
 	index = []
 #scan existing indices to check if they still exist
 print("Checking indexed files...")
-temp_index = [img for img in index if Path(img["url"]).exists() and Path(img["thumbnailUrl"]).exists()]
+temp_index = [img for img in index if Path(urllib.parse.unquote(img["url"])).exists() and Path(urllib.parse.unquote(img["thumbnailUrl"])).exists()]
 index = temp_index
 #add new images
 #Only select formats currently supported by browsers
