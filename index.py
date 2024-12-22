@@ -34,17 +34,19 @@ dir_name = sys.argv[1]
 data_dir_path = Path('.simple_gallery_data')
 #cleanup old data
 if data_dir_path.exists():
-	print("Loading data from existing indices...")
+	print("Loading existing indices...")
 	with open(data_dir_path.joinpath('index.json')) as fp:
 		index = json.load(fp)
+		print(f"Loaded {len(index)} indices")
+		#scan existing indices to check if they still exist
+		print("Checking indexed files...")
+		temp_index = [img for img in index if Path(urllib.parse.unquote(img["url"])).exists() and Path(urllib.parse.unquote(img["thumbnailUrl"])).exists()]
+		print(f"Found {len(temp_index)} image files")
+		index = temp_index
 else:
 	data_dir_path.mkdir(parents=True, exist_ok=True)
 	data_dir_path.joinpath('thumbnails').mkdir(exist_ok=True, parents=True)
 	index = []
-#scan existing indices to check if they still exist
-print("Checking indexed files...")
-temp_index = [img for img in index if Path(urllib.parse.unquote(img["url"])).exists() and Path(urllib.parse.unquote(img["thumbnailUrl"])).exists()]
-index = temp_index
 #add new images
 #Only select formats currently supported by browsers
 print("Indexing...")
@@ -53,6 +55,7 @@ accept_file_formats = [
 	]
 files = list(itertools.chain.from_iterable(map((lambda x: list(Path(dir_name).rglob(x))), accept_file_formats)))
 total_count = len(files)
+total_indexed_count = len(index);
 pbar = tqdm(total = total_count, leave = True)
 p = multiprocessing.Pool(processes = max(1, int(multiprocessing.cpu_count()/2)))
 for idx, file in enumerate(files, start = 1):
@@ -64,9 +67,9 @@ for idx, file in enumerate(files, start = 1):
 				info = json.loads(info)
 				data = {}
 				data["name"] = file.name
-				data["id"] = len(index) + idx
+				data["id"] = total_indexed_count + idx
 				data["url"] = urllib.parse.quote(str(file))
-				thumbnail_path = data_dir_path.joinpath('thumbnails').joinpath(str(idx)).with_suffix('.jpg')
+				thumbnail_path = data_dir_path.joinpath('thumbnails').joinpath(str(total_indexed_count + idx)).with_suffix('.jpg')
 				data["thumbnailUrl"] = urllib.parse.quote(str(thumbnail_path))
 				data["textMeta"] = info[0]
 				info = subprocess.run(['exiftool', '-n', '-GPSLatitude', '-GPSLongitude', '-j', str(file)], stdout=subprocess.PIPE, check=True).stdout.decode('utf-8')
