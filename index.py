@@ -20,7 +20,7 @@ def remove_dir(pth: Path):
 def create_thumbnail(path_to_original, path_to_thumbnail):
 	#print(str(path_to_original) + " -> " + str(path_to_thumbnail))
 	#print(" ".join(['ffmpeg', '-nostdin', '-i', str(path_to_original), "-vf", "scale=trunc(oh*a/2)*2:min(500\,iw)", '-y', str(path_to_thumbnail)]))
-	subprocess.run(['ffmpeg', '-nostdin', '-i', str(path_to_original), "-vf", "scale=trunc(oh*a/2)*2:min(500\,iw)", '-y', str(path_to_thumbnail)], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT).stdout.decode('utf-8')
+	subprocess.run(['ffmpeg', '-nostdin', '-i', str(path_to_original), "-vf", r"scale=trunc(oh*a/2)*2:min(500\,iw)", '-y', str(path_to_thumbnail)], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT).stdout.decode('utf-8')
 
 def is_already_indexed(file_path: Path) -> bool:
 	global index
