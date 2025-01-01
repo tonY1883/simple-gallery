@@ -16,35 +16,36 @@ class SimpleGallery {
         this.initialize();
     }
     loadImages(callBack) {
-        fetch('.simple_gallery_data/index.json', { cache: 'no-store' })
-            .then(response => response.json())
+        fetch(".simple_gallery_data/index.json", { cache: "no-store" })
+            .then((response) => response.json())
             .then((images) => images.sort((a, b) => a.name.localeCompare(b.name)))
             .then((data) => {
             this.galleryImages = data;
             this.albums = new Map();
-            data.forEach(element => {
+            data.forEach((element) => {
                 if (!this.albums.has(element.textMeta.Directory)) {
                     this.albums.set(element.textMeta.Directory, new Array());
                 }
                 this.albums.get(element.textMeta.Directory).push(element);
             });
-        }).then(() => callBack(this))
-            .catch(err => {
+        })
+            .then(() => callBack(this))
+            .catch((err) => {
             console.error(err);
-            alert('error: ' + err);
+            alert("error: " + err);
         });
     }
     displayAlbums() {
-        this.albumListDisplay.innerHTML = '';
-        let newContent = '';
+        this.albumListDisplay.innerHTML = "";
+        let newContent = "";
         this.albums.forEach((imgs, dir) => {
             newContent += `<li onclick="galleryApp.displayImages('${dir}')">${dir}<li>`;
         });
         this.albumListDisplay.innerHTML = newContent;
     }
     displayImages(album) {
-        this.gallery.innerHTML = '';
-        let newContent = '';
+        this.gallery.innerHTML = "";
+        let newContent = "";
         this.albums.get(album).forEach((img) => {
             newContent += `<div class="gallery-image-panel"><img src="${img.thumbnailUrl}" loading="lazy" alt="${img.name}" onclick="galleryApp.displayImage(${img.id})"></div>`;
         });
@@ -54,10 +55,10 @@ class SimpleGallery {
         if (id === this.currentImage?.id) {
             //simply unhide the detail view
             console.debug("Same image as current image, nothing to do");
-            this.imageOverlay.classList.remove('gone');
+            this.imageOverlay.classList.remove("gone");
             return;
         }
-        let image = this.galleryImages.find(i => i.id === id);
+        let image = this.galleryImages.find((i) => i.id === id);
         if (!!image) {
             this.currentImage = image;
         }
@@ -66,16 +67,16 @@ class SimpleGallery {
             return;
         }
         console.info("loaded image", this.currentImage);
-        this.image.classList.add('hidden');
+        this.image.classList.add("hidden");
         this.image.src = this.currentImage.url;
         this.image.alt = this.currentImage.name;
         this.imageInfoName.innerText = this.currentImage.name;
-        this.imageInfoTable.innerHTML = '';
+        this.imageInfoTable.innerHTML = "";
         const meta = {
             "File Meta": {
                 Format: this.currentImage.textMeta.FileType.trim(),
                 Size: this.currentImage.textMeta.FileSize.trim(),
-                Directory: this.currentImage.textMeta.Directory.trim()
+                Directory: this.currentImage.textMeta.Directory.trim(),
             },
             Photography: {
                 Dimension: `${this.currentImage.textMeta.ImageSize.trim()} (${this.currentImage.textMeta.Megapixels} Megapixels)`,
@@ -83,11 +84,18 @@ class SimpleGallery {
                 "Shutter Speed": this.currentImage.textMeta.ShutterSpeed?.trim(),
                 "Focal Length": this.currentImage.textMeta.FocalLength?.trim(),
                 ISO: this.currentImage.textMeta.ISO,
-                "White Balance": this.currentImage.textMeta.WhiteBalance?.trim(), "Camera Model": !!this.currentImage.textMeta.Make ? !!this.currentImage.textMeta.Model ? this.currentImage.textMeta.Make.trim() + ' ' + this.currentImage.textMeta.Model.trim() : this.currentImage.textMeta.Make.trim() : !!this.currentImage.textMeta.Model ? this.currentImage.textMeta.Model.trim() : null,
+                "White Balance": this.currentImage.textMeta.WhiteBalance?.trim(),
+                "Camera Model": !!this.currentImage.textMeta.Make
+                    ? !!this.currentImage.textMeta.Model
+                        ? this.currentImage.textMeta.Make.trim() + " " + this.currentImage.textMeta.Model.trim()
+                        : this.currentImage.textMeta.Make.trim()
+                    : !!this.currentImage.textMeta.Model
+                        ? this.currentImage.textMeta.Model.trim()
+                        : null,
             },
             History: {
-                "Date": this.currentImage.textMeta.CreateDate?.trim(),
-                "Location": this.currentImage.textMeta.GPSPosition?.trim()
+                Date: this.currentImage.textMeta.CreateDate?.trim(),
+                Location: this.currentImage.textMeta.GPSPosition?.trim(),
             },
         };
         for (const [sectionHeading, sectionData] of Object.entries(meta)) {
@@ -95,57 +103,69 @@ class SimpleGallery {
         }
         if (!!this.currentImage.gpsMeta.GPSLatitude && !!this.leafletLib) {
             !!this.leafletMap && this.leafletMap.remove();
-            this.leafletMap = this.leafletLib.map(this.imageLocationMap).setView([this.currentImage.gpsMeta.GPSLatitude, this.currentImage.gpsMeta.GPSLongitude], 14);
-            this.leafletLib.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            this.leafletMap = this.leafletLib
+                .map(this.imageLocationMap)
+                .setView([this.currentImage.gpsMeta.GPSLatitude, this.currentImage.gpsMeta.GPSLongitude], 14);
+            this.leafletLib
+                .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
                 maxZoom: 19,
-                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            }).addTo(this.leafletMap);
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            })
+                .addTo(this.leafletMap);
             this.leafletLib.marker([this.currentImage.gpsMeta.GPSLatitude, this.currentImage.gpsMeta.GPSLongitude]).addTo(this.leafletMap);
-            this.imageLocationMap.classList.remove('hidden');
+            this.imageLocationMap.classList.remove("hidden");
         }
         else {
-            this.imageLocationMap.classList.add('hidden');
+            this.imageLocationMap.classList.add("hidden");
         }
-        this.imageOverlay.classList.remove('gone');
+        this.imageOverlay.classList.remove("gone");
     }
     toggleImageInfo() {
-        this.imageInfoPanel.classList.toggle('gone');
+        this.imageInfoPanel.classList.toggle("gone");
         if (!!this.leafletMap) {
             this.leafletMap.invalidateSize();
         }
     }
     hideImage() {
-        this.imageOverlay.classList.add('gone');
+        this.imageOverlay.classList.add("gone");
     }
     initialize() {
         this.leafletLib = window["L"];
-        this.albumListDisplay = document.querySelector('#album-list');
-        this.gallery = document.querySelector('#gallery-wrapper');
-        this.imageOverlay = document.querySelector('#image-wrapper');
-        this.imageOverlayCloseBtn = document.querySelector('#close-btn');
-        this.imageOverlayCloseBtn.addEventListener('click', () => { this.hideImage(); });
-        this.image = document.querySelector('#the-image');
-        this.image.onload = () => { this.image.classList.remove('hidden'); };
-        this.imageInfoPanel = document.querySelector('#image-info-panel');
-        this.imageInfoName = document.querySelector('#image-info-name');
-        this.imageInfoTable = document.querySelector('#image-info-table');
-        this.imageInfoButton = document.querySelector('#info-btn');
-        this.imageInfoButton.addEventListener('click', () => { this.toggleImageInfo(); });
-        this.imageNextButton = document.querySelector('#next-btn');
-        this.imageNextButton.addEventListener('click', () => {
+        this.albumListDisplay = document.querySelector("#album-list");
+        this.gallery = document.querySelector("#gallery-wrapper");
+        this.imageOverlay = document.querySelector("#image-wrapper");
+        this.imageOverlayCloseBtn = document.querySelector("#close-btn");
+        this.imageOverlayCloseBtn.addEventListener("click", () => {
+            this.hideImage();
+        });
+        this.image = document.querySelector("#the-image");
+        this.image.onload = () => {
+            this.image.classList.remove("hidden");
+        };
+        this.imageInfoPanel = document.querySelector("#image-info-panel");
+        this.imageInfoName = document.querySelector("#image-info-name");
+        this.imageInfoTable = document.querySelector("#image-info-table");
+        this.imageInfoButton = document.querySelector("#info-btn");
+        this.imageInfoButton.addEventListener("click", () => {
+            this.toggleImageInfo();
+        });
+        this.imageNextButton = document.querySelector("#next-btn");
+        this.imageNextButton.addEventListener("click", () => {
             let index = this.galleryImages.findIndex((img) => img.id === this.currentImage.id);
             this.displayImage(this.galleryImages[index + 1]?.id);
         });
-        this.imagePreviousButton = document.querySelector('#previous-btn');
-        this.imagePreviousButton.addEventListener('click', () => {
+        this.imagePreviousButton = document.querySelector("#previous-btn");
+        this.imagePreviousButton.addEventListener("click", () => {
             let index = this.galleryImages.findIndex((img) => img.id === this.currentImage.id);
             this.displayImage(this.galleryImages[index - 1]?.id);
         });
-        this.imageLocationMap = document.querySelector('#location-map');
-        this.loadImages(() => { this.displayAlbums(); });
+        this.imageLocationMap = document.querySelector("#location-map");
+        this.loadImages(() => {
+            this.displayAlbums();
+        });
     }
 }
 let galleryApp;
-window.addEventListener('load', () => {
+window.addEventListener("load", () => {
     galleryApp = new SimpleGallery();
 });

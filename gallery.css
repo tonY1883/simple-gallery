@@ -1,240 +1,241 @@
 body {
-    user-select: text;
-    align-content: center;
-    justify-content: space-evenly;
-    margin: auto;
-    padding-top: 1em;
-    text-align: center;
-    background: #1A1C1F;
-    color: #CBCBCB;
+	user-select: text;
+	align-content: center;
+	justify-content: space-evenly;
+	margin: auto;
+	padding-top: 1em;
+	text-align: center;
+	background: #1a1c1f;
+	color: #cbcbcb;
 }
 
 #album-wrapper {
-    padding: 1rem 0.25rem;
-    position: fixed;
-    background-color: #353535;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 2.5rem;
-    max-width: 40%;
-    box-shadow: 0 10px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
-    overflow-y: auto;
+	padding: 1rem 0.25rem;
+	position: fixed;
+	background-color: #353535;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: 2.5rem;
+	max-width: 40%;
+	box-shadow:
+		0 10px rgba(0, 0, 0, 0.19),
+		0 6px 6px rgba(0, 0, 0, 0.23);
+	overflow-y: auto;
 }
 
 #album-icon {
-    font-size: 1.5rem;
+	font-size: 1.5rem;
 }
 
 #album-list {
-    text-align: left;
-    display: none;
-    list-style-type: none;
+	text-align: left;
+	display: none;
+	list-style-type: none;
 }
 
 #album-list li {
-    padding: 0.25rem;
-    width: 100%;
+	padding: 0.25rem;
+	width: 100%;
 }
 
 #album-wrapper:hover {
-    padding: 1rem;
-    width: 20%;
-
+	padding: 1rem;
+	width: 20%;
 }
 
 #album-wrapper:hover #album-icon {
-    display: none;
+	display: none;
 }
 
 #album-wrapper:hover #album-list {
-    display: block;
+	display: block;
 }
 
 #gallery-wrapper {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    align-content: space-around;
-    padding-left: 2.5rem;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-evenly;
+	align-content: space-around;
+	padding-left: 2.5rem;
 }
 
 .gallery-image-panel {
-    display: flex;
-    text-align: center;
-    justify-content: center;
-    border: solid 1px;
-    height: 15rem;
-    width: 15rem;
-    margin: 1rem;
-    max-width: 20rem;
-    max-height: 20rem;
+	display: flex;
+	text-align: center;
+	justify-content: center;
+	border: solid 1px;
+	height: 15rem;
+	width: 15rem;
+	margin: 1rem;
+	max-width: 20rem;
+	max-height: 20rem;
 }
 
 .btn {
-    font-family: monospace;
-    user-select: none;
-    font-size: 2rem;
-    padding: 0.25rem 0.5rem;
-    background-color: rgba(0, 0, 0, 0.4);
+	font-family: monospace;
+	user-select: none;
+	font-size: 2rem;
+	padding: 0.25rem 0.5rem;
+	background-color: rgba(0, 0, 0, 0.4);
 }
 
 .gallery-image-panel img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
 }
 
 #image-wrapper {
-    position: fixed;
-    display: flex;
-    justify-content: space-around;
-    z-index: 1001;
-    background-color: rgba(0, 0, 0, 0.7);
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
+	position: fixed;
+	display: flex;
+	justify-content: space-around;
+	z-index: 1001;
+	background-color: rgba(0, 0, 0, 0.7);
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
 }
 
 #image-panel {
-    position: relative;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    max-width: 100vw;
-    max-height: 100vh;
-    padding: 1.5rem;
-    flex-grow: 3;
+	position: relative;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 100vw;
+	max-height: 100vh;
+	padding: 1.5rem;
+	flex-grow: 3;
 }
 
 #image-panel img {
-    margin: 0;
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+	margin: 0;
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
 }
 
 .gone {
-    display: none !important;
+	display: none !important;
 }
 
 .hidden {
-    visibility: hidden !important;
+	visibility: hidden !important;
 }
 
 #close-btn {
-    position: fixed;
-    top: 1rem;
-    left: 2rem;
-    z-index: 1002;
+	position: fixed;
+	top: 1rem;
+	left: 2rem;
+	z-index: 1002;
 }
 
 #info-btn {
-    position: fixed;
-    top: 1rem;
-    right: 2rem;
-    z-index: 1002;
+	position: fixed;
+	top: 1rem;
+	right: 2rem;
+	z-index: 1002;
 }
 
 #image-info-panel {
-    background-color: #1A1C1F;
-    min-width: 15%;
-    max-width: 20%;
-    padding: 2rem;
-    overflow-y: auto;
+	background-color: #1a1c1f;
+	min-width: 15%;
+	max-width: 20%;
+	padding: 2rem;
+	overflow-y: auto;
 }
 
 #image-info-table table {
-    width: 100%;
-    margin-top: 0.75rem;
-    margin-bottom: 0.75rem;
-    text-align: left;
-    table-layout: fixed;
+	width: 100%;
+	margin-top: 0.75rem;
+	margin-bottom: 0.75rem;
+	text-align: left;
+	table-layout: fixed;
 }
 
 #image-info-table caption {
-    font-weight: 800;
-    padding: 0.25rem;
-    padding-left: 0;
-    text-align: left;
+	font-weight: 800;
+	padding: 0.25rem;
+	padding-left: 0;
+	text-align: left;
 }
 
 #image-info-table td {
-    padding: 0.2rem 0.5rem;
+	padding: 0.2rem 0.5rem;
 }
 
 .slider-button {
-    padding: 0.5rem;
-    opacity: 0.4;
-    margin: 0;
-    font-size: 3rem;
-    position: absolute;
+	padding: 0.5rem;
+	opacity: 0.4;
+	margin: 0;
+	font-size: 3rem;
+	position: absolute;
 }
 
 .slider-button:hover {
-    opacity: 1;
+	opacity: 1;
 }
 
 #previous-btn {
-    left: 0;
+	left: 0;
 }
 
 #next-btn {
-    right: 0;
+	right: 0;
 }
 
-#location-map{
-    width: 100%;
-    height: 20vw;
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
+#location-map {
+	width: 100%;
+	height: 20vw;
+	margin-top: 1.5rem;
+	margin-bottom: 1.5rem;
 }
 
 @media only screen and (max-width: 560px) {
-    #album-wrapper {
-        max-width: 80%;
-    }
+	#album-wrapper {
+		max-width: 80%;
+	}
 
-    #album-wrapper:hover {
-        width: 80%;
-    }
+	#album-wrapper:hover {
+		width: 80%;
+	}
 
-    #image-info-panel {
-        max-width: 100%;
-        max-height: 80%;
-        flex-grow: 1;
-    }
+	#image-info-panel {
+		max-width: 100%;
+		max-height: 80%;
+		flex-grow: 1;
+	}
 
-    #location-map{
-        width: 100%;
-        height: 80vw;
-    }
+	#location-map {
+		width: 100%;
+		height: 80vw;
+	}
 
-    #image-wrapper {
-        flex-direction: column;
-        align-items: stretch;
-    }
+	#image-wrapper {
+		flex-direction: column;
+		align-items: stretch;
+	}
 
-    #image-panel {
-        flex-grow: 1;
-        flex-shrink: 2;
-    }
+	#image-panel {
+		flex-grow: 1;
+		flex-shrink: 2;
+	}
 
-    #gallery-wrapper {
-        padding-left: 3rem;
-    }
+	#gallery-wrapper {
+		padding-left: 3rem;
+	}
 
-    .gallery-image-panel {
-        height: 12rem;
-        width: 12rem;
-        margin: 0.5rem;
-    }
+	.gallery-image-panel {
+		height: 12rem;
+		width: 12rem;
+		margin: 0.5rem;
+	}
 }

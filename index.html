@@ -1,41 +1,44 @@
 <!DOCTYPE html>
 <html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta charset="UTF-8" />
+		<!-- CSS Style Sheet Here -->
+		<link href="gallery.css" rel="stylesheet" type="text/css" />
+		<link
+			rel="stylesheet"
+			href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+			integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+			crossorigin=""
+		/>
+		<script src="gallery.js"></script>
+		<script
+			src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+			integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+			crossorigin=""
+		></script>
+		<title>Simple Gallery</title>
+	</head>
 
-<head>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta charset="UTF-8">
-	<!-- CSS Style Sheet Here -->
-	<link href='gallery.css' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-		integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-	<script src="gallery.js"></script>
-	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-		integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-	<title>
-		Simple Gallery
-	</title>
-</head>
-
-<body>
-	<div id="album-wrapper">
-		<span id="album-icon">&#128444;</span>
-		<ul id="album-list"></ul>
-	</div>
-	<div id="gallery-wrapper">
-	</div>
-	<div id="image-wrapper" class="gone">
-		<div id="close-btn" class="btn">X</div>
-		<div id="image-panel">
-			<div id="previous-btn" class="btn slider-button">&lt;</div>
-			<img id="the-image" class="hidden">
-			<div id="next-btn" class="btn slider-button">&gt;</div>
+	<body>
+		<div id="album-wrapper">
+			<span id="album-icon">&#128444;</span>
+			<ul id="album-list"></ul>
 		</div>
-		<div id="image-info-panel" class="gone">
-			<h3 id="image-info-name"></h3>
-			<div id="image-info-table"></div>
-			<div id="location-map"></div>
+		<div id="gallery-wrapper"></div>
+		<div id="image-wrapper" class="gone">
+			<div id="close-btn" class="btn">X</div>
+			<div id="image-panel">
+				<div id="previous-btn" class="btn slider-button">&lt;</div>
+				<img id="the-image" class="hidden" />
+				<div id="next-btn" class="btn slider-button">&gt;</div>
+			</div>
+			<div id="image-info-panel" class="gone">
+				<h3 id="image-info-name"></h3>
+				<div id="image-info-table"></div>
+				<div id="location-map"></div>
+			</div>
+			<div id="info-btn" class="btn">i</div>
 		</div>
-		<div id="info-btn" class="btn">i</div>
-	</div>
-
-</body>
+	</body>
+</html>
