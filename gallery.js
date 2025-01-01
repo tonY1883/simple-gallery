@@ -161,6 +161,7 @@ class SimpleGallery {
         });
         this.imageLocationMap = document.querySelector("#location-map");
         this.loadImages(() => {
+            document.querySelector("#loading-dialog")?.remove();
             this.displayAlbums();
         });
     }

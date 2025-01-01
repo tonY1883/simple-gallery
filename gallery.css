@@ -199,6 +199,34 @@ body {
 	margin-bottom: 1.5rem;
 }
 
+#loading-dialog {
+	margin: auto;
+	top: 0;
+	bottom: 0;
+	background-color: transparent;
+	border: none;
+}
+
+/* progress {
+    appearance: none;
+    background-color: transparent;
+    color: #cbcbcb;
+    border: solid 2px;
+}
+
+progress::-webkit-progress-bar {
+    background-color: transparent;
+}
+
+progress::-moz-progress-bar {
+    background-color:  #cbcbcb;
+}
+
+progress::-webkit-progress-value {
+    background-color:  #cbcbcb;
+} */
+
+
 @media only screen and (max-width: 560px) {
 	#album-wrapper {
 		max-width: 80%;
