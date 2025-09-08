@@ -28,9 +28,29 @@ class SimpleGallery {
         this.initialize();
     }
     loadImages(callBack) {
-        this.dbHelper.open().then(() => this.dbHelper.clearIndex()).then(() => fetch(".simple_gallery_data/index.json", { cache: "no-store" }))
-            .then((response) => response.json())
-            .then((images) => this.dbHelper.updateImageIndex(images))
+        this.dbHelper
+            .open()
+            .then(() => fetch("hash.txt", { cache: "no-store" }))
+            .then((response) => response.text())
+            .then((hash) => {
+            const HASH_STORAGE_KEY = "index-hash";
+            console.debug("current index signature: " + hash);
+            const currentChecksum = localStorage.getItem(HASH_STORAGE_KEY);
+            localStorage.setItem(HASH_STORAGE_KEY, hash);
+            if (currentChecksum !== hash) {
+                console.info("Index outdated or missing, downloading new index");
+                return this.dbHelper
+                    .clearIndex()
+                    .then(() => fetch(".simple_gallery_data/index.json", { cache: "no-store" }))
+                    .then((response) => response.json())
+                    .then(async (images) => {
+                    await this.dbHelper.updateImageIndex(images);
+                });
+            }
+            else {
+                return Promise.resolve();
+            }
+        })
             .then(() => this.dbHelper.getAllImages())
             .then((data) => {
             this.galleryImages = data;
@@ -373,6 +393,9 @@ class DBHelper {
     }
     get activeDatabase() {
         return __classPrivateFieldGet(this, _DBHelper_dbInstance, "f");
+    }
+    get activeDatabaseVersion() {
+        return __classPrivateFieldGet(this, _DBHelper_dbVersion, "f");
     }
 }
 _DBHelper_dbName = new WeakMap(), _DBHelper_dbVersion = new WeakMap(), _DBHelper_dbInstance = new WeakMap();
