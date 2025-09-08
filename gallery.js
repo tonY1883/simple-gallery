@@ -1,3 +1,15 @@
+var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
+    if (kind === "m") throw new TypeError("Private method is not writable");
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+};
+var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+};
+var _DBHelper_dbName, _DBHelper_dbVersion, _DBHelper_dbInstance;
 class SimpleGallery {
     static tableFromObject(data, title) {
         let dataTable = document.createElement("table");
@@ -16,9 +28,10 @@ class SimpleGallery {
         this.initialize();
     }
     loadImages(callBack) {
-        fetch(".simple_gallery_data/index.json", { cache: "no-store" })
+        this.dbHelper.open().then(() => this.dbHelper.clearIndex()).then(() => fetch(".simple_gallery_data/index.json", { cache: "no-store" }))
             .then((response) => response.json())
-            .then((images) => images.sort((a, b) => a.name.localeCompare(b.name)))
+            .then((images) => this.dbHelper.updateImageIndex(images))
+            .then(() => this.dbHelper.getAllImages())
             .then((data) => {
             this.galleryImages = data;
             this.albums = new Map();
@@ -160,10 +173,230 @@ class SimpleGallery {
             this.displayImage(this.galleryImages[index - 1]?.id);
         });
         this.imageLocationMap = document.querySelector("#location-map");
+        this.dbHelper = new GalleryDBHelper("gallery_index", 1);
         this.loadImages(() => {
             document.querySelector("#loading-dialog")?.remove();
             this.displayAlbums();
         });
+    }
+}
+class DBHelper {
+    constructor(name, version) {
+        _DBHelper_dbName.set(this, void 0);
+        _DBHelper_dbVersion.set(this, void 0);
+        _DBHelper_dbInstance.set(this, void 0);
+        __classPrivateFieldSet(this, _DBHelper_dbName, name, "f");
+        if (!!!version) {
+            throw new Error("Database vserion is not valid!");
+        }
+        __classPrivateFieldSet(this, _DBHelper_dbVersion, version, "f");
+    }
+    onUpgrade(db, oldVersion, newVersion) { }
+    onDelete(db) { }
+    onOpen(db) { }
+    onError(err) {
+        throw err;
+    }
+    insert(data, store) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.activeDatabase.transaction(store, "readwrite");
+            const resultKeys = new Array();
+            transaction.oncomplete = (event) => {
+                resolve(resultKeys);
+            };
+            transaction.onerror = (event) => {
+                reject(event.target.error);
+            };
+            const objectStore = transaction.objectStore(store);
+            data.forEach((datum) => {
+                const request = objectStore.add(datum);
+                request.onsuccess = (event) => {
+                    resultKeys.push(event.target.result);
+                };
+            });
+        });
+    }
+    update(data, store) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.activeDatabase.transaction(store, "readwrite");
+            const resultKeys = new Array();
+            transaction.oncomplete = (event) => {
+                resolve(resultKeys);
+            };
+            transaction.onerror = (event) => {
+                reject(event.target.error);
+            };
+            const objectStore = transaction.objectStore(store);
+            data.forEach((datum) => {
+                const request = objectStore.put(datum);
+                request.onsuccess = (event) => {
+                    resultKeys.push(event.target.result);
+                };
+            });
+        });
+    }
+    select(key, store, onError) {
+        return new Promise((resolve, reject) => {
+            const objectStore = this.activeDatabase.transaction(store).objectStore(store);
+            const request = objectStore.get(key);
+            request.onerror = (event) => {
+                const err = event.target.error;
+                if (!!onError) {
+                    onError(err);
+                }
+                else {
+                    reject(err);
+                }
+            };
+            request.onsuccess = (event) => {
+                resolve(event.target.result);
+            };
+        });
+    }
+    selectAll(store, onError) {
+        return new Promise((resolve, reject) => {
+            const objectStore = this.activeDatabase.transaction(store).objectStore(store);
+            const request = objectStore.getAll();
+            request.onerror = (event) => {
+                const err = event.target.error;
+                if (!!onError) {
+                    onError(err);
+                }
+                else {
+                    reject(err);
+                }
+            };
+            request.onsuccess = (event) => {
+                resolve(event.target.result);
+            };
+        });
+    }
+    query(store, onError) {
+        return new Promise((resolve, reject) => {
+            const objectStore = this.activeDatabase.transaction(store).objectStore(store);
+            const request = objectStore.openCursor();
+            request.onerror = (event) => {
+                const err = event.target.error;
+                if (!!onError) {
+                    onError(err);
+                }
+                else {
+                    reject(err);
+                }
+            };
+            request.onsuccess = (event) => {
+                const cursor = event.target.result;
+                const result = new Array();
+                if (cursor) {
+                    result.push(cursor.value);
+                    cursor.continue();
+                }
+                else {
+                    resolve(result);
+                }
+            };
+        });
+    }
+    delete(key, store, onError) {
+        return new Promise((resolve, reject) => {
+            const objectStore = this.activeDatabase.transaction(store, "readwrite").objectStore(store);
+            const request = objectStore.delete(key);
+            request.onerror = (event) => {
+                const err = event.target.error;
+                if (!!onError) {
+                    onError(err);
+                }
+                else {
+                    reject(err);
+                }
+            };
+            request.onsuccess = (event) => {
+                resolve();
+            };
+        });
+    }
+    deleteAll(store, onError) {
+        return new Promise((resolve, reject) => {
+            const objectStore = this.activeDatabase.transaction(store, "readwrite").objectStore(store);
+            const request = objectStore.clear();
+            request.onerror = (event) => {
+                const err = event.target.error;
+                if (!!onError) {
+                    onError(err);
+                }
+                else {
+                    reject(err);
+                }
+            };
+            request.onsuccess = (event) => {
+                resolve();
+            };
+        });
+    }
+    open() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open("gallery_index", 1);
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (event.oldVersion === 0) {
+                    this.onCreate(db);
+                }
+                else if (event.newVersion > event.oldVersion) {
+                    this.onUpgrade(db, event.oldVersion, event.newVersion);
+                }
+                else if (!!!event.newVersion) {
+                    this.onDelete(db);
+                }
+            };
+            request.onsuccess = (event) => {
+                const db = event.target.result;
+                this.onOpen(db);
+                __classPrivateFieldSet(this, _DBHelper_dbInstance, db, "f");
+                resolve(db);
+            };
+            request.onerror = (event) => {
+                this.onError(event.target.error);
+                reject();
+            };
+        });
+    }
+    /**
+     * close
+     */
+    close() {
+        if (!!this.activeDatabase) {
+            this.activeDatabase.close();
+        }
+    }
+    get activeDatabaseName() {
+        return __classPrivateFieldGet(this, _DBHelper_dbName, "f");
+    }
+    get activeDatabase() {
+        return __classPrivateFieldGet(this, _DBHelper_dbInstance, "f");
+    }
+}
+_DBHelper_dbName = new WeakMap(), _DBHelper_dbVersion = new WeakMap(), _DBHelper_dbInstance = new WeakMap();
+class GalleryDBHelper extends DBHelper {
+    onCreate(db) {
+        const objectStore = db.createObjectStore("images", { keyPath: "id" });
+        objectStore.createIndex("album", "textMeta.Directory", { unique: false });
+        objectStore.createIndex("id", "id", { unique: true });
+    }
+    onError(err) {
+        super.onError(err);
+        alert(err);
+    }
+    clearIndex() {
+        return this.deleteAll("images");
+    }
+    updateImageIndex(data) {
+        return super.update(data, "images");
+    }
+    getImage(id) {
+        return super.select(id, "images");
+    }
+    getAllImages() {
+        return super.selectAll("images");
     }
 }
 let galleryApp;
