@@ -31,6 +31,15 @@ class SimpleGallery {
         }
         return dataTable;
     }
+    static getAlbumDisplayId(stringInput) {
+        //imitate java' object hash 
+        let hash = 0;
+        for (let i = 0; i < stringInput.length; i++) {
+            hash = (hash << 5) - hash + stringInput.charCodeAt(i);
+            hash |= 0;
+        }
+        return "album-" + Math.abs(hash).toString(36); //add string to follow HTML id standard
+    }
     constructor() {
         this.initialize();
     }
@@ -61,12 +70,16 @@ class SimpleGallery {
             .then(() => this.#dbHelper.getAllImages())
             .then((data) => {
             this.#galleryImages = data;
-            this.#albums = new Map();
+            this.#albums = {};
             data.forEach((element) => {
-                if (!this.#albums.has(element.textMeta.Directory)) {
-                    this.#albums.set(element.textMeta.Directory, new Array());
-                }
-                this.#albums.get(element.textMeta.Directory).push(element);
+                const path = element.textMeta.Directory.toString().split("/");
+                let currentDir = this.#albums;
+                path.forEach((d) => {
+                    if (!!!currentDir[d]) {
+                        currentDir[d] = {};
+                    }
+                    currentDir = currentDir[d];
+                });
             });
         })
             .then(() => callBack(this))
@@ -77,19 +90,61 @@ class SimpleGallery {
     }
     displayAlbums() {
         this.#albumListDisplay.innerHTML = "";
-        let newContent = "";
-        this.#albums.forEach((imgs, dir) => {
-            newContent += `<li onclick="galleryApp.displayImages('${dir}')">${dir}<li>`;
+        let newContent = document.createDocumentFragment();
+        Object.keys(this.#albums).forEach((album) => {
+            const item = document.createElement("li");
+            item.id = SimpleGallery.getAlbumDisplayId(album);
+            item.onclick = (e) => {
+                e.stopPropagation();
+                galleryApp.displayImages(album);
+            };
+            item.innerText = album;
+            newContent.appendChild(item);
         });
-        this.#albumListDisplay.innerHTML = newContent;
+        this.#albumListDisplay.appendChild(newContent);
     }
     displayImages(album) {
         this.#gallery.innerHTML = "";
-        let newContent = "";
-        this.#albums.get(album).forEach((img) => {
-            newContent += `<div class="gallery-image-panel"><img src="${img.thumbnailUrl}" loading="lazy" alt="${img.name}" onclick="galleryApp.displayImage(${img.id})"></div>`;
+        //content for current dir
+        let newContent = document.createDocumentFragment();
+        this.#galleryImages
+            .filter((img) => img.textMeta.Directory === album)
+            .forEach((img) => {
+            const item = document.createElement("div");
+            item.id = SimpleGallery.getAlbumDisplayId(album);
+            item.classList.add("gallery-image-panel");
+            item.onclick = (e) => {
+                e.stopPropagation();
+                galleryApp.displayImage(img.id);
+            };
+            const itemContent = document.createElement("img");
+            itemContent.src = img.thumbnailUrl;
+            itemContent.loading = "lazy";
+            itemContent.alt = img.name;
+            item.appendChild(itemContent);
+            newContent.appendChild(item);
         });
-        this.#gallery.innerHTML = newContent;
+        this.#gallery.appendChild(newContent);
+        //display subdir
+        const albumPath = album.toString().split("/");
+        let currentDir = this.#albums;
+        albumPath.forEach((d) => {
+            currentDir = currentDir[d];
+        });
+        const subDirList = document.createElement("ul");
+        let subDirListContent = document.createDocumentFragment();
+        Object.keys(currentDir).forEach((a) => {
+            const item = document.createElement("li");
+            item.id = SimpleGallery.getAlbumDisplayId(`${album}/${a}`);
+            item.onclick = (e) => {
+                e.stopPropagation();
+                galleryApp.displayImages(`${album}/${a}`);
+            };
+            item.innerText = a;
+            subDirListContent.appendChild(item);
+        });
+        subDirList.appendChild(subDirListContent);
+        document.querySelector(`#${SimpleGallery.getAlbumDisplayId(album)}`).appendChild(subDirList);
     }
     displayImage(id) {
         if (id === this.#currentImage?.id) {
@@ -152,7 +207,9 @@ class SimpleGallery {
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             })
                 .addTo(this.#leafletMap);
-            this.leafletLib.marker([this.#currentImage.gpsMeta.GPSLatitude, this.#currentImage.gpsMeta.GPSLongitude]).addTo(this.#leafletMap);
+            this.leafletLib
+                .marker([this.#currentImage.gpsMeta.GPSLatitude, this.#currentImage.gpsMeta.GPSLongitude])
+                .addTo(this.#leafletMap);
             this.#imageLocationMap.classList.remove("hidden");
         }
         else {
@@ -211,11 +268,8 @@ class DBHelper {
     #dbName;
     #dbVersion;
     #dbInstance;
-    constructor(name, version) {
+    constructor(name, version = 1) {
         this.#dbName = name;
-        if (!!!version) {
-            throw new Error("Database vserion is not valid!");
-        }
         this.#dbVersion = version;
     }
     onUpgrade(db, oldVersion, newVersion) { }
@@ -224,8 +278,14 @@ class DBHelper {
     onError(err) {
         throw err;
     }
+    /** Throws error if database is not open */
+    async requiresOpenDatabase() {
+        if (!!!this.activeDatabase) {
+            throw new Error("No open database for operation");
+        }
+    }
     insert(data, store) {
-        return new Promise((resolve, reject) => {
+        return this.requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
             const transaction = this.activeDatabase.transaction(store, "readwrite");
             const resultKeys = new Array();
             transaction.oncomplete = (event) => {
@@ -241,10 +301,10 @@ class DBHelper {
                     resultKeys.push(event.target.result);
                 };
             });
-        });
+        }));
     }
     update(data, store) {
-        return new Promise((resolve, reject) => {
+        return this.requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
             const transaction = this.activeDatabase.transaction(store, "readwrite");
             const resultKeys = new Array();
             transaction.oncomplete = (event) => {
@@ -260,10 +320,10 @@ class DBHelper {
                     resultKeys.push(event.target.result);
                 };
             });
-        });
+        }));
     }
     select(key, store, onError) {
-        return new Promise((resolve, reject) => {
+        return this.requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
             const objectStore = this.activeDatabase.transaction(store).objectStore(store);
             const request = objectStore.get(key);
             request.onerror = (event) => {
@@ -278,10 +338,10 @@ class DBHelper {
             request.onsuccess = (event) => {
                 resolve(event.target.result);
             };
-        });
+        }));
     }
     selectAll(store, onError) {
-        return new Promise((resolve, reject) => {
+        return this.requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
             const objectStore = this.activeDatabase.transaction(store).objectStore(store);
             const request = objectStore.getAll();
             request.onerror = (event) => {
@@ -296,10 +356,10 @@ class DBHelper {
             request.onsuccess = (event) => {
                 resolve(event.target.result);
             };
-        });
+        }));
     }
     query(store, onError) {
-        return new Promise((resolve, reject) => {
+        return this.requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
             const objectStore = this.activeDatabase.transaction(store).objectStore(store);
             const request = objectStore.openCursor();
             request.onerror = (event) => {
@@ -322,10 +382,10 @@ class DBHelper {
                     resolve(result);
                 }
             };
-        });
+        }));
     }
     delete(key, store, onError) {
-        return new Promise((resolve, reject) => {
+        return this.requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
             const objectStore = this.activeDatabase.transaction(store, "readwrite").objectStore(store);
             const request = objectStore.delete(key);
             request.onerror = (event) => {
@@ -340,10 +400,10 @@ class DBHelper {
             request.onsuccess = (event) => {
                 resolve();
             };
-        });
+        }));
     }
     deleteAll(store, onError) {
-        return new Promise((resolve, reject) => {
+        return this.requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
             const objectStore = this.activeDatabase.transaction(store, "readwrite").objectStore(store);
             const request = objectStore.clear();
             request.onerror = (event) => {
@@ -358,21 +418,21 @@ class DBHelper {
             request.onsuccess = (event) => {
                 resolve();
             };
-        });
+        }));
     }
     open() {
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open("gallery_index", 1);
+            const request = indexedDB.open(this.activeDatabaseName, this.activeDatabaseVersion);
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
                 if (event.oldVersion === 0) {
                     this.onCreate(db);
                 }
-                else if (event.newVersion > event.oldVersion) {
-                    this.onUpgrade(db, event.oldVersion, event.newVersion);
-                }
                 else if (!!!event.newVersion) {
                     this.onDelete(db);
+                }
+                else if (event.newVersion > event.oldVersion) {
+                    this.onUpgrade(db, event.oldVersion, event.newVersion);
                 }
             };
             request.onsuccess = (event) => {
@@ -393,6 +453,7 @@ class DBHelper {
     close() {
         if (!!this.activeDatabase) {
             this.activeDatabase.close();
+            this.#dbInstance = undefined;
         }
     }
     get activeDatabaseName() {
