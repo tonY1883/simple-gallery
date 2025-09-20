@@ -126,6 +126,12 @@ class SimpleGallery {
         });
         this.#gallery.appendChild(newContent);
         //display subdir
+        //first, check if subdir is already displayed
+        const currentAlbum = document.querySelector(`#${SimpleGallery.getAlbumDisplayId(album)}`);
+        if (currentAlbum.dataset.open) {
+            //do not show sub subDirList, already done
+            return;
+        }
         const albumPath = album.toString().split("/");
         let currentDir = this.#albums;
         albumPath.forEach((d) => {
@@ -145,7 +151,8 @@ class SimpleGallery {
         if (albumPath.length % 2 > 0) {
             subDirList.classList.add('alt-color');
         }
-        document.querySelector(`#${SimpleGallery.getAlbumDisplayId(album)}`).appendChild(subDirList);
+        currentAlbum.appendChild(subDirList);
+        currentAlbum.dataset.open = 'true';
     }
     displayImage(id) {
         if (id === this.#currentImage?.id) {
