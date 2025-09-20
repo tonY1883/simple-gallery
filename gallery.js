@@ -132,7 +132,6 @@ class SimpleGallery {
             currentDir = currentDir[d];
         });
         const subDirList = document.createElement("ul");
-        let subDirListContent = document.createDocumentFragment();
         Object.keys(currentDir).forEach((a) => {
             const item = document.createElement("li");
             item.id = SimpleGallery.getAlbumDisplayId(`${album}/${a}`);
@@ -141,9 +140,11 @@ class SimpleGallery {
                 galleryApp.displayImages(`${album}/${a}`);
             };
             item.innerText = a;
-            subDirListContent.appendChild(item);
+            subDirList.appendChild(item);
         });
-        subDirList.appendChild(subDirListContent);
+        if (albumPath.length % 2 > 0) {
+            subDirList.classList.add('alt-color');
+        }
         document.querySelector(`#${SimpleGallery.getAlbumDisplayId(album)}`).appendChild(subDirList);
     }
     displayImage(id) {

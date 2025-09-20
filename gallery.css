@@ -29,9 +29,17 @@ body {
 }
 
 #album-list {
-	text-align: left;
 	display: none;
+}
+
+#album-wrapper ul {
+	text-align: left;
 	list-style-type: none;
+	background-color: #353535;
+}
+
+#album-list ul.alt-color{
+	background-color: #151515;
 }
 
 #album-list li {
