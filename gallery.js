@@ -46,7 +46,7 @@ class SimpleGallery {
     loadImages(callBack) {
         this.#dbHelper
             .open()
-            .then(() => fetch("hash.txt", { cache: "no-store" }))
+            .then(() => fetch(".simple_gallery_data/hash.txt", { cache: "no-store" }))
             .then((response) => response.text())
             .then((hash) => {
             const HASH_STORAGE_KEY = "index-hash";

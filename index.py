@@ -90,5 +90,5 @@ p.close()
 p.join()
 with open(data_dir_path.joinpath('index.json'), 'w', encoding = 'utf8') as fp:
 	json.dump(index, fp, ensure_ascii = False)
-with open("hash.txt", "w") as checksum_file:
+with open(data_dir_path.joinpath("hash.txt"), "w") as checksum_file:
 	checksum_file.write(hashlib.md5(json.dumps(index).encode('utf-8')).hexdigest())
