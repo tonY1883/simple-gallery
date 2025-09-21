@@ -32,7 +32,7 @@ class SimpleGallery {
         return dataTable;
     }
     static getAlbumDisplayId(stringInput) {
-        //imitate java' object hash 
+        //imitate java's object hash
         let hash = 0;
         for (let i = 0; i < stringInput.length; i++) {
             hash = (hash << 5) - hash + stringInput.charCodeAt(i);
@@ -117,18 +117,18 @@ class SimpleGallery {
                 e.stopPropagation();
                 galleryApp.displayImage(img.id);
             };
-            const itemContent = document.createElement("img");
-            itemContent.src = img.thumbnailUrl;
-            itemContent.loading = "lazy";
-            itemContent.alt = img.name;
-            item.appendChild(itemContent);
+            const thumbnail = document.createElement("img");
+            thumbnail.src = img.thumbnailUrl;
+            thumbnail.loading = "lazy";
+            thumbnail.alt = img.name;
+            item.appendChild(thumbnail);
             newContent.appendChild(item);
         });
         this.#gallery.appendChild(newContent);
         //display subdir
-        //first, check if subdir is already displayed
         const currentAlbum = document.querySelector(`#${SimpleGallery.getAlbumDisplayId(album)}`);
-        if (currentAlbum.dataset.open) {
+        //first, check if subdir is already displayed
+        if (!!currentAlbum.dataset.open) {
             //do not show sub subDirList, already done
             return;
         }
@@ -149,10 +149,10 @@ class SimpleGallery {
             subDirList.appendChild(item);
         });
         if (albumPath.length % 2 > 0) {
-            subDirList.classList.add('alt-color');
+            subDirList.classList.add("alt-color");
         }
         currentAlbum.appendChild(subDirList);
-        currentAlbum.dataset.open = 'true';
+        currentAlbum.dataset.open = "true";
     }
     displayImage(id) {
         if (id === this.#currentImage?.id) {
