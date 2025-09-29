@@ -127,32 +127,35 @@ class SimpleGallery {
         this.#gallery.appendChild(newContent);
         //display subdir
         const currentAlbum = document.querySelector(`#${SimpleGallery.getAlbumDisplayId(album)}`);
+        const albumPath = album.toString().split("/");
         //first, check if subdir is already displayed
         if (!!currentAlbum.dataset.open) {
-            //do not show sub subDirList, already done
-            return;
+            //remove displayed sublist
+            currentAlbum.querySelector("ul")?.remove();
+            delete currentAlbum.dataset.open;
         }
-        const albumPath = album.toString().split("/");
-        let currentDir = this.#albums;
-        albumPath.forEach((d) => {
-            currentDir = currentDir[d];
-        });
-        const subDirList = document.createElement("ul");
-        Object.keys(currentDir).forEach((a) => {
-            const item = document.createElement("li");
-            item.id = SimpleGallery.getAlbumDisplayId(`${album}/${a}`);
-            item.onclick = (e) => {
-                e.stopPropagation();
-                galleryApp.displayImages(`${album}/${a}`);
-            };
-            item.innerText = a;
-            subDirList.appendChild(item);
-        });
-        if (albumPath.length % 2 > 0) {
-            subDirList.classList.add("alt-color");
+        else {
+            let currentDir = this.#albums;
+            albumPath.forEach((d) => {
+                currentDir = currentDir[d];
+            });
+            const subDirList = document.createElement("ul");
+            Object.keys(currentDir).forEach((a) => {
+                const item = document.createElement("li");
+                item.id = SimpleGallery.getAlbumDisplayId(`${album}/${a}`);
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    galleryApp.displayImages(`${album}/${a}`);
+                };
+                item.innerText = a;
+                subDirList.appendChild(item);
+            });
+            if (albumPath.length % 2 > 0) {
+                subDirList.classList.add("alt-color");
+            }
+            currentAlbum.appendChild(subDirList);
+            currentAlbum.dataset.open = "true";
         }
-        currentAlbum.appendChild(subDirList);
-        currentAlbum.dataset.open = "true";
     }
     displayImage(id) {
         if (id === this.#currentImage?.id) {
