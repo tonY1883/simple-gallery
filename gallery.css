@@ -22,6 +22,7 @@ body {
 		0 10px rgba(0, 0, 0, 0.19),
 		0 6px 6px rgba(0, 0, 0, 0.23);
 	overflow-y: auto;
+	user-select: none;
 }
 
 #album-icon {
@@ -36,6 +37,7 @@ body {
 	text-align: left;
 	list-style-type: none;
 	background-color: #353535;
+	cursor: pointer;
 }
 
 #album-list ul.alt-color{
