@@ -109,6 +109,12 @@ class SimpleGallery {
         let newContent = document.createDocumentFragment();
         this.#galleryImages
             .filter((img) => img.textMeta.Directory === album)
+            .sort((a, b) => {
+            const dateA = new Date(a.textMeta.CreateDate?.replace(/^(\d+):(\d+):(\d+)/, "$1-$2-$3") || 0);
+            const dateB = new Date(b.textMeta.CreateDate?.replace(/^(\d+):(\d+):(\d+)/, "$1-$2-$3") || 0);
+            const diff = dateA.getTime() - dateB.getTime();
+            return diff !== 0 ? diff : a.name.localeCompare(b.name);
+        })
             .forEach((img) => {
             const item = document.createElement("div");
             item.id = SimpleGallery.getAlbumDisplayId(album);
