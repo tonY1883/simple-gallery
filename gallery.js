@@ -2,6 +2,8 @@ class SimpleGallery {
     #albums;
     #galleryImages;
     #currentImage;
+    #searchInput;
+    #searchFilter;
     #dbHelper;
     #albumListDisplay;
     #gallery;
@@ -43,8 +45,8 @@ class SimpleGallery {
     constructor() {
         this.initialize();
     }
-    loadImages(callBack) {
-        this.#dbHelper
+    async upadateDataFromServer() {
+        return this.#dbHelper
             .open()
             .then(() => fetch(".simple_gallery_data/hash.txt", { cache: "no-store" }))
             .then((response) => response.text())
@@ -66,14 +68,15 @@ class SimpleGallery {
             else {
                 return Promise.resolve();
             }
-        })
-            .then(() => this.#dbHelper.getAllImages())
-            .then((data) => {
+        });
+    }
+    async refershDisplay() {
+        return this.#dbHelper.getAllImages().then((data) => {
             this.#galleryImages = data;
             this.#albums = {};
-            data.forEach((element) => {
+            data.filter((v) => v.textMeta.Directory.includes(this.#searchFilter) || v.name.includes(this.#searchFilter)).forEach((element) => {
                 const path = element.textMeta.Directory.toString().split("/");
-                let currentDir = this.#albums;
+                let currentDir = this.#albums; //starts from the root dir, then nevaiate down to replicate the structure
                 path.forEach((d) => {
                     if (!!!currentDir[d]) {
                         currentDir[d] = {};
@@ -81,8 +84,15 @@ class SimpleGallery {
                     currentDir = currentDir[d];
                 });
             });
+        });
+    }
+    loadImages() {
+        this.upadateDataFromServer()
+            .then(() => this.refershDisplay())
+            .then(() => {
+            document.querySelector("#loading-dialog")?.remove();
+            this.displayAlbums();
         })
-            .then(() => callBack(this))
             .catch((err) => {
             console.error(err);
             alert("error: " + err);
@@ -247,6 +257,13 @@ class SimpleGallery {
         this.leafletLib = window["L"];
         this.#albumListDisplay = document.querySelector("#album-list");
         this.#gallery = document.querySelector("#gallery-wrapper");
+        this.#searchInput = document.querySelector("#search-input");
+        this.#searchFilter = "";
+        this.#searchInput.addEventListener("input", (e) => {
+            this.#searchFilter = this.#searchInput.value;
+            console.log(this.#searchFilter);
+            this.refershDisplay().then(() => this.displayAlbums());
+        });
         this.#imageOverlay = document.querySelector("#image-wrapper");
         this.#imageOverlayCloseBtn = document.querySelector("#close-btn");
         this.#imageOverlayCloseBtn.addEventListener("click", () => {
@@ -275,10 +292,7 @@ class SimpleGallery {
         });
         this.#imageLocationMap = document.querySelector("#location-map");
         this.#dbHelper = new GalleryDBHelper("gallery_index", 1);
-        this.loadImages(() => {
-            document.querySelector("#loading-dialog")?.remove();
-            this.displayAlbums();
-        });
+        this.loadImages();
     }
 }
 class DBHelper {

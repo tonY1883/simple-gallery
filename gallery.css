@@ -7,6 +7,7 @@ body {
 	text-align: center;
 	background: #1a1c1f;
 	color: #cbcbcb;
+	box-sizing: border-box;
 }
 
 #album-wrapper {
@@ -29,7 +30,24 @@ body {
 	font-size: 1.5rem;
 }
 
+#search-input {
+	display: none;
+	padding: 1rem;
+	background-color: #434343;
+	border: none;
+	width: 100%;
+	box-sizing: border-box;
+	color: #cbcbcb;
+	font-size: 1rem;
+}
+
+#search-input:focus {
+	outline: none;
+}
+
 #album-list {
+	padding: 1rem;
+	margin: 0;
 	display: none;
 }
 
@@ -40,7 +58,7 @@ body {
 	cursor: pointer;
 }
 
-#album-list ul.alt-color{
+#album-list ul.alt-color {
 	background-color: #151515;
 }
 
@@ -50,12 +68,16 @@ body {
 }
 
 #album-wrapper:hover {
-	padding: 1rem;
+	padding: 0;
 	width: 20%;
 }
 
 #album-wrapper:hover #album-icon {
 	display: none;
+}
+
+#album-wrapper:hover #search-input {
+	display: block;
 }
 
 #album-wrapper:hover #album-list {
@@ -235,7 +257,6 @@ progress::-moz-progress-bar {
 progress::-webkit-progress-value {
     background-color:  #cbcbcb;
 } */
-
 
 @media only screen and (max-width: 560px) {
 	#album-wrapper {
