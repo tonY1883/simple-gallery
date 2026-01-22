@@ -48,21 +48,16 @@ class SimpleGallery {
     async upadateDataFromServer() {
         return this.#dbHelper
             .open()
-            .then(() => fetch(".simple_gallery_data/hash.txt", { cache: "no-store" }))
-            .then((response) => response.text())
-            .then((hash) => {
-            const HASH_STORAGE_KEY = "index-hash";
-            console.debug("current index signature: " + hash);
-            const currentChecksum = localStorage.getItem(HASH_STORAGE_KEY);
-            localStorage.setItem(HASH_STORAGE_KEY, hash);
-            if (currentChecksum !== hash) {
+            .then(() => Promise.all([fetch(".simple_gallery_data/hash.txt", { cache: "no-store" }).then((response) => response.text()), this.#dbHelper.getImageIndexHash()])).then(([server, client]) => {
+            console.debug("current index signature: " + server);
+            if (client !== server) {
                 console.info("Index outdated or missing, downloading new index");
                 return this.#dbHelper
                     .clearIndex()
                     .then(() => fetch(".simple_gallery_data/index.json", { cache: "no-store" }))
                     .then((response) => response.json())
                     .then(async (images) => {
-                    await this.#dbHelper.updateImageIndex(images);
+                    await this.#dbHelper.updateImageIndex(images, server);
                 });
             }
             else {
@@ -310,13 +305,16 @@ class DBHelper {
         throw err;
     }
     /** Throws error if database is not open */
-    async requiresOpenDatabase() {
+    async #requiresOpenDatabase() {
         if (!!!this.activeDatabase) {
             throw new Error("No open database for operation");
         }
     }
-    insert(data, store) {
-        return this.requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
+    insert(data, store, keys) {
+        if (!!keys && keys.length !== data.length) {
+            throw new Error("number of provided keys does not match number of data");
+        }
+        return this.#requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
             const transaction = this.activeDatabase.transaction(store, "readwrite");
             const resultKeys = new Array();
             transaction.oncomplete = (event) => {
@@ -326,16 +324,25 @@ class DBHelper {
                 reject(event.target.error);
             };
             const objectStore = transaction.objectStore(store);
-            data.forEach((datum) => {
-                const request = objectStore.add(datum);
+            data.forEach((datum, index) => {
+                let request;
+                if (!!keys) {
+                    request = objectStore.add(datum, keys.at(index));
+                }
+                else {
+                    request = objectStore.add(datum);
+                }
                 request.onsuccess = (event) => {
                     resultKeys.push(event.target.result);
                 };
             });
         }));
     }
-    update(data, store) {
-        return this.requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
+    update(data, store, keys) {
+        if (!!keys && keys.length !== data.length) {
+            throw new Error("number of provided keys does not match number of data");
+        }
+        return this.#requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
             const transaction = this.activeDatabase.transaction(store, "readwrite");
             const resultKeys = new Array();
             transaction.oncomplete = (event) => {
@@ -345,8 +352,14 @@ class DBHelper {
                 reject(event.target.error);
             };
             const objectStore = transaction.objectStore(store);
-            data.forEach((datum) => {
-                const request = objectStore.put(datum);
+            data.forEach((datum, index) => {
+                let request;
+                if (!!keys) {
+                    request = objectStore.put(datum, keys.at(index));
+                }
+                else {
+                    request = objectStore.put(datum);
+                }
                 request.onsuccess = (event) => {
                     resultKeys.push(event.target.result);
                 };
@@ -354,7 +367,7 @@ class DBHelper {
         }));
     }
     select(key, store, onError) {
-        return this.requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
+        return this.#requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
             const objectStore = this.activeDatabase.transaction(store).objectStore(store);
             const request = objectStore.get(key);
             request.onerror = (event) => {
@@ -372,7 +385,7 @@ class DBHelper {
         }));
     }
     selectAll(store, onError) {
-        return this.requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
+        return this.#requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
             const objectStore = this.activeDatabase.transaction(store).objectStore(store);
             const request = objectStore.getAll();
             request.onerror = (event) => {
@@ -390,21 +403,19 @@ class DBHelper {
         }));
     }
     query(store, onError) {
-        return this.requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
+        return this.#requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
             const objectStore = this.activeDatabase.transaction(store).objectStore(store);
             const request = objectStore.openCursor();
+            const result = new Array();
             request.onerror = (event) => {
                 const err = event.target.error;
                 if (!!onError) {
                     onError(err);
                 }
-                else {
-                    reject(err);
-                }
+                reject(err);
             };
             request.onsuccess = (event) => {
                 const cursor = event.target.result;
-                const result = new Array();
                 if (cursor) {
                     result.push(cursor.value);
                     cursor.continue();
@@ -416,7 +427,7 @@ class DBHelper {
         }));
     }
     delete(key, store, onError) {
-        return this.requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
+        return this.#requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
             const objectStore = this.activeDatabase.transaction(store, "readwrite").objectStore(store);
             const request = objectStore.delete(key);
             request.onerror = (event) => {
@@ -434,7 +445,7 @@ class DBHelper {
         }));
     }
     deleteAll(store, onError) {
-        return this.requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
+        return this.#requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
             const objectStore = this.activeDatabase.transaction(store, "readwrite").objectStore(store);
             const request = objectStore.clear();
             request.onerror = (event) => {
@@ -448,6 +459,33 @@ class DBHelper {
             };
             request.onsuccess = (event) => {
                 resolve();
+            };
+        }));
+    }
+    queryIndex(store, indexName, onError) {
+        return this.#requiresOpenDatabase().then(() => new Promise((resolve, reject) => {
+            const objectStore = this.activeDatabase.transaction(store).objectStore(store);
+            const index = objectStore.index(indexName);
+            const request = index.openKeyCursor();
+            const result = new Array();
+            request.onerror = (event) => {
+                const err = event.target.error;
+                if (!!onError) {
+                    onError(err);
+                }
+                else {
+                    reject(err);
+                }
+            };
+            request.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    result.push(cursor.key);
+                    cursor.continue();
+                }
+                else {
+                    resolve(result);
+                }
             };
         }));
     }
@@ -498,8 +536,11 @@ class DBHelper {
     }
 }
 class GalleryDBHelper extends DBHelper {
+    static INDEX_HASH_KEY = "index-hash";
+    static IMAGES_KEY = "images";
     onCreate(db) {
-        const objectStore = db.createObjectStore("images", { keyPath: "id" });
+        db.createObjectStore(GalleryDBHelper.INDEX_HASH_KEY);
+        const objectStore = db.createObjectStore(GalleryDBHelper.IMAGES_KEY, { keyPath: "id" });
         objectStore.createIndex("album", "textMeta.Directory", { unique: false });
         objectStore.createIndex("id", "id", { unique: true });
     }
@@ -508,16 +549,20 @@ class GalleryDBHelper extends DBHelper {
         alert(err);
     }
     clearIndex() {
-        return this.deleteAll("images");
+        return Promise.all([this.deleteAll(GalleryDBHelper.IMAGES_KEY), this.deleteAll(GalleryDBHelper.INDEX_HASH_KEY)]).then();
     }
-    updateImageIndex(data) {
-        return super.update(data, "images");
+    updateImageIndex(data, hash) {
+        return super.update(data, GalleryDBHelper.IMAGES_KEY).then(() => super.update([hash], GalleryDBHelper.INDEX_HASH_KEY, [GalleryDBHelper.INDEX_HASH_KEY]))
+            .then();
+    }
+    getImageIndexHash() {
+        return super.selectAll(GalleryDBHelper.INDEX_HASH_KEY).then((v) => v.at(0) || null);
     }
     getImage(id) {
-        return super.select(id, "images");
+        return super.select(id, GalleryDBHelper.IMAGES_KEY);
     }
     getAllImages() {
-        return super.selectAll("images");
+        return super.selectAll(GalleryDBHelper.IMAGES_KEY);
     }
 }
 let galleryApp;
