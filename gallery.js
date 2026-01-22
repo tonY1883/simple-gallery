@@ -48,7 +48,11 @@ class SimpleGallery {
     async upadateDataFromServer() {
         return this.#dbHelper
             .open()
-            .then(() => Promise.all([fetch(".simple_gallery_data/hash.txt", { cache: "no-store" }).then((response) => response.text()), this.#dbHelper.getImageIndexHash()])).then(([server, client]) => {
+            .then(() => Promise.all([
+            fetch(".simple_gallery_data/hash.txt", { cache: "no-store" }).then((response) => response.text()),
+            this.#dbHelper.getImageIndexHash(),
+        ]))
+            .then(([server, client]) => {
             console.debug("current index signature: " + server);
             if (client !== server) {
                 console.info("Index outdated or missing, downloading new index");
@@ -552,7 +556,9 @@ class GalleryDBHelper extends DBHelper {
         return Promise.all([this.deleteAll(GalleryDBHelper.IMAGES_KEY), this.deleteAll(GalleryDBHelper.INDEX_HASH_KEY)]).then();
     }
     updateImageIndex(data, hash) {
-        return super.update(data, GalleryDBHelper.IMAGES_KEY).then(() => super.update([hash], GalleryDBHelper.INDEX_HASH_KEY, [GalleryDBHelper.INDEX_HASH_KEY]))
+        return super
+            .update(data, GalleryDBHelper.IMAGES_KEY)
+            .then(() => super.update([hash], GalleryDBHelper.INDEX_HASH_KEY, [GalleryDBHelper.INDEX_HASH_KEY]))
             .then();
     }
     getImageIndexHash() {
