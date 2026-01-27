@@ -88,6 +88,7 @@ for idx, file in enumerate(files, start = 1):
 		#print(e)
 p.close()
 p.join()
+pbar.close()
 with open(data_dir_path.joinpath('index.json'), 'w', encoding = 'utf8') as fp:
 	json.dump(index, fp, ensure_ascii = False)
 with open(data_dir_path.joinpath("hash.txt"), "w") as checksum_file:
