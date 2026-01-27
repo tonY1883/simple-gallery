@@ -70,7 +70,7 @@ for idx, file in enumerate(files, start = 1):
 				data["name"] = file.name
 				data["id"] = total_indexed_count + idx
 				data["url"] = urllib.parse.quote(str(file))
-				thumbnail_path = data_dir_path.joinpath('thumbnails').joinpath(str(total_indexed_count + idx)).with_suffix('.jpg')
+				thumbnail_path = data_dir_path.joinpath('thumbnails').joinpath(hashlib.md5(str(file).encode()).hexdigest()).with_suffix('.jpg')
 				data["thumbnailUrl"] = urllib.parse.quote(str(thumbnail_path))
 				data["textMeta"] = info[0]
 				info = subprocess.run(['exiftool', '-n', '-GPSLatitude', '-GPSLongitude', '-j', str(file)], stdout=subprocess.PIPE, check=True).stdout.decode('utf-8')
